@@ -1,1 +1,7 @@
-# Formula_Build_ProgressBar
+HomeBrewのフォーミュラビルドの進捗状況をプログレスバーで表示します
+
+進捗状況がわかる cmakeをビルドに使うフォーミュラーだけになります
+
+インストールでターミナルに cmake --build が表示されたら起動して下さい
+
+簡単なAppleScriptなので色々改造してみて下さい
