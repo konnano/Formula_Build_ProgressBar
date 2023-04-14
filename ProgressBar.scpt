@@ -2,13 +2,11 @@ set f to ""
 repeat
 	display dialog "Formula" default answer ""
 	set m to text returned of result
-	
 	try
 		set f to do shell script "ls $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null"
 	on error
 		display dialog "File not exist : $HOME/Library/Logs/Homebrew/" & m & "/02.cmake"
 	end try
-	
 	if not f is "" then exit repeat
 end repeat
 
@@ -31,7 +29,6 @@ repeat
 		set int to a as number
 		if int > y then set y to int
 	end repeat
-	set progress completed steps to y
 	if y = 100 then
 		repeat
 			do shell script "tail $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null \\
@@ -47,15 +44,16 @@ repeat
 				do shell script "tail -2 $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null |
                                                     sed -E '/^\\[.+]/!d;s/\\[ *([0-9]+)%].+/\\1/'"
 				set s to result as number
-				if y > s then
+				if not s = 0 and y > s then
 					set y to s
 					exit repeat
 				end if
 			end if
 		end repeat
 	end if
-	if y = 100 then exit repeat
+	set progress completed steps to y
 	delay 1
+	if y = 100 then exit repeat
 end repeat
 
 try
