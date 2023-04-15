@@ -13,12 +13,19 @@ end repeat
 do shell script "tail -2 $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null | head -c 6"
 if result is "[100%]" then return
 
-set progress total steps to 100
+do shell script "sed  -E '/.*make: \\*+/!d' \\
+                 $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null"
+if not result is "" then
+	display dialog m & " : make: Error..."
+	return
+end if
+
 set y to 0
 set b to 0
+set progress total steps to 100
 repeat
-	do shell script "sed  -E '/.*make: \\*+/!d' \\
-                         $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null"
+	do shell script "tail $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null |
+	                 sed  -E '/.*make: \\*+/!d'"
 	if not result is "" then
 		display dialog m & " : make: Error..."
 		exit repeat
@@ -27,20 +34,20 @@ repeat
                          sed -E '/^\\[.+]/!d;s/\\[ *([0-9]+)%].+/\\1/'"
 	set str to words of result
 	repeat with a in str
-		set int to a as number
-		if not y = 0 and int = 0 then
+		set i to a as number
+		if not y = 0 and i = 0 then
 			set b to 1
 			exit repeat
 		end if
 		if b = 1 then
-			if 100 > int then
+			if 100 > i then
 				exit repeat
 			else
 				set b to 0
 				exit repeat
 			end if
 		end if
-		if int > y then set y to int
+		if i > y then set y to i
 	end repeat
 	if y = 100 then
 		repeat
