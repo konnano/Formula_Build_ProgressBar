@@ -42,7 +42,6 @@ repeat
 		end if
 		if int > y then set y to int
 	end repeat
-	set progress completed steps to y --
 	if y = 100 then
 		repeat
 			do shell script "tail $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null \\
@@ -65,7 +64,11 @@ repeat
 			end if
 		end repeat
 	end if
-	if y = 100 then exit repeat
+	set progress completed steps to y
+	if y = 100 then
+		delay 1
+		exit repeat
+	end if
 end repeat
 
 try
