@@ -15,20 +15,34 @@ if result is "[100%]" then return
 
 set progress total steps to 100
 set y to 0
+set b to 0
 repeat
 	do shell script "sed  -E '/.*make: \\*+/!d' \\
-                               $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null"
+                         $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null"
 	if not result is "" then
 		display dialog m & " : make: Error..."
 		exit repeat
 	end if
-	do shell script "tail $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null |
-                               sed -E '/^\\[.+]/!d;s/\\[ *([0-9]+)%].+/\\1/'"
+	do shell script "tail -2 $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null |
+                         sed -E '/^\\[.+]/!d;s/\\[ *([0-9]+)%].+/\\1/'"
 	set str to words of result
 	repeat with a in str
 		set int to a as number
+		if not y = 0 and int = 0 then
+			set b to 1
+			exit repeat
+		end if
+		if b = 1 then
+			if 100 > int then
+				exit repeat
+			else
+				set b to 0
+				exit repeat
+			end if
+		end if
 		if int > y then set y to int
 	end repeat
+	set progress completed steps to y --
 	if y = 100 then
 		repeat
 			do shell script "tail $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null \\
@@ -37,12 +51,12 @@ repeat
 			do shell script "tail $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null \\
                                              >$HOME/Library/Logs/Homebrew/" & m & "/diff2.txt"
 			do shell script "diff $HOME/Library/Logs/Homebrew/" & m & "/diff1.txt \\
-                                             $HOME/Library/Logs/Homebrew/" & m & "/diff2.txt >/dev/null 2>&1 || echo 1"
+                                              $HOME/Library/Logs/Homebrew/" & m & "/diff2.txt >/dev/null 2>&1 || echo 1"
 			if result is "" then
 				exit repeat
 			else
 				do shell script "tail -2 $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null |
-                                                    sed -E '/^\\[.+]/!d;s/\\[ *([0-9]+)%].+/\\1/'"
+                                                 sed -E '/^\\[.+]/!d;s/\\[ *([0-9]+)%].+/\\1/'"
 				set s to result as number
 				if not s = 0 and y > s then
 					set y to s
@@ -51,12 +65,10 @@ repeat
 			end if
 		end repeat
 	end if
-	set progress completed steps to y
-	delay 1
 	if y = 100 then exit repeat
 end repeat
 
 try
 	do shell script "rm $HOME/Library/Logs/Homebrew/" & m & "/diff1.txt 2>/dev/null \\
-                               $HOME/Library/Logs/Homebrew/" & m & "/diff2.txt 2>/dev/null"
+                            $HOME/Library/Logs/Homebrew/" & m & "/diff2.txt 2>/dev/null"
 end try
