@@ -15,10 +15,7 @@ if result is "[100%]" then return
 
 do shell script "sed  -E '/.*make: \\*+/!d' \\
                  $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null"
-if not result is "" then
-	display dialog m & " : make: Error..."
-	return
-end if
+if not result is "" then return
 
 set y to 0
 set b to 0
