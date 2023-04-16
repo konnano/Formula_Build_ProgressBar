@@ -1,14 +1,39 @@
 set f to ""
+set e to ""
+set k to 0
+set progress total steps to 100
 repeat
 	display dialog "Formula" default answer ""
 	set m to text returned of result
 	try
-		set f to do shell script "ls $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null"
+		set e to do shell script "ls $HOME/Library/Logs/Homebrew/" & m & "/01.cmake 2>/dev/null"
 	on error
-		display dialog "File not exist : $HOME/Library/Logs/Homebrew/" & m & "/02.cmake"
+		display dialog "File not exist : $HOME/Library/Logs/Homebrew/" & m & "/01.cmake"
 	end try
-	if not f is "" then exit repeat
+	try
+		set f to do shell script "ls $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null"
+	end try
+	if not e is "" then
+		if f is "" then display notification " configure...." with title "Wait"
+		repeat
+			do shell script "tail -1 $HOME/Library/Logs/Homebrew/" & m & "/01.cmake 2>/dev/null |
+                                         sed 's/.*Build files.*/1/'"
+			if result is "1" then
+				if f is "" then display notification " configure...." with title "Success"
+				set k to 1
+				exit repeat
+			end if
+		end repeat
+	end if
+	if k = 1 then exit repeat
 end repeat
+delay 1
+try
+	set f to do shell script "ls $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null"
+on error
+	display dialog "File not exist : $HOME/Library/Logs/Homebrew/" & m & "/02.cmake"
+	return
+end try
 
 do shell script "tail -2 $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null | head -c 6"
 if result is "[100%]" then return
@@ -19,7 +44,6 @@ if not result is "" then return
 
 set y to 0
 set b to 0
-set progress total steps to 100
 repeat
 	do shell script "tail $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null |
 	                 sed  -E '/.*make: \\*+/!d'"
