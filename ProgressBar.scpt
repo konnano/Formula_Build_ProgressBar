@@ -17,7 +17,7 @@ repeat
 		if f is "" then display notification " configure...." with title "Wait"
 		repeat
 			do shell script "tail -1 $HOME/Library/Logs/Homebrew/" & m & "/01.cmake 2>/dev/null |
-                                         sed 's/.*Build files.*/1/'"
+                                         sed 's/.*Build files have been written.*/1/'"
 			if result is "1" then
 				if f is "" then display notification " configure...." with title "Success"
 				set k to 1
@@ -29,7 +29,7 @@ repeat
 end repeat
 delay 1
 try
-	set f to do shell script "ls $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null"
+	do shell script "ls $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null"
 on error
 	display dialog "File not exist : $HOME/Library/Logs/Homebrew/" & m & "/02.cmake"
 	return
@@ -42,15 +42,19 @@ do shell script "sed  -E '/.*make: \\*+/!d' \\
                  $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null"
 if not result is "" then return
 
-set y to 0
+set pe to do shell script "sed -E '/^\\[.+]/!d;s/\\[ *([0-9]+)%].+/\\1/' \\
+                           $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null | uniq |
+perl -ne '$h||=0;$h=1 if $i&&$_==0;if($h&&$_<=100){$h=0 if $_==100;next};$i=$_;END{print $i,$h}'"
+if not pe is "" then
+	set p to words of pe
+	set y to item 1 of p as number
+	set c to item 2 of p as number
+else
+	set y to 0
+	set c to 0
+end if
 set b to 0
 repeat
-	do shell script "tail $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null |
-	                 sed  -E '/.*make: \\*+/!d'"
-	if not result is "" then
-		display dialog m & " : make: Error..."
-		exit repeat
-	end if
 	do shell script "tail -2 $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null |
                          sed -E '/^\\[.+]/!d;s/\\[ *([0-9]+)%].+/\\1/'"
 	set str to words of result
@@ -60,16 +64,23 @@ repeat
 			set b to 1
 			exit repeat
 		end if
-		if b = 1 then
+		if b = 1 or c = 1 then
 			if 100 > i then
 				exit repeat
 			else
 				set b to 0
+				set c to 0
 				exit repeat
 			end if
 		end if
 		if i > y then set y to i
 	end repeat
+	do shell script "tail $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null |
+	                 sed  -E '/.*make: \\*+/!d'"
+	if not result is "" then
+		display dialog m & " : make: Error..."
+		exit repeat
+	end if
 	if y = 100 then
 		repeat
 			do shell script "tail $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null \\
