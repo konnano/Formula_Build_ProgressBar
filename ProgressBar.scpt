@@ -1,25 +1,20 @@
-set f to ""
-set e to ""
 set k to 0
 set progress total steps to 100
 repeat
 	display dialog "Formula" default answer ""
 	set m to text returned of result
-	try
-		set e to do shell script "ls $HOME/Library/Logs/Homebrew/" & m & "/01.cmake 2>/dev/null"
-	on error
-		display dialog "File not exist : $HOME/Library/Logs/Homebrew/" & m & "/01.cmake"
-	end try
-	try
-		set f to do shell script "ls $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null"
-	end try
-	if not e is "" then
-		if f is "" then display notification " configure...." with title "Wait"
+	
+	set e to do shell script "[ -f $HOME/Library/Logs/Homebrew/" & m & "/01.cmake ] || echo 1"
+	if e is "1" then display dialog "File not exist : $HOME/Library/Logs/Homebrew/" & m & "/01.cmake"
+	
+	set f to do shell script "[ -f $HOME/Library/Logs/Homebrew/" & m & "/02.cmake ] || echo 1"
+	if e is "" then
+		if f is "1" then display notification " configure...." with title "Wait"
 		repeat
 			do shell script "tail -1 $HOME/Library/Logs/Homebrew/" & m & "/01.cmake 2>/dev/null |
                                          sed 's/.*Build files have been written.*/1/'"
 			if result is "1" then
-				if f is "" then display notification " configure...." with title "Success"
+				if f is "1" then display notification " configure...." with title "Success"
 				set k to 1
 				exit repeat
 			end if
@@ -28,12 +23,11 @@ repeat
 	if k = 1 then exit repeat
 end repeat
 delay 1
-try
-	do shell script "ls $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null"
-on error
+do shell script "[ -f $HOME/Library/Logs/Homebrew/" & m & "/02.cmake ] || echo 1"
+if result is "1" then
 	display dialog "File not exist : $HOME/Library/Logs/Homebrew/" & m & "/02.cmake"
 	return
-end try
+end if
 
 do shell script "tail -2 $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null | head -c 6"
 if result is "[100%]" then return
@@ -55,6 +49,7 @@ else
 end if
 set b to 0
 repeat
+	if c = 1 then set progress completed steps to y
 	do shell script "tail -2 $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null |
                          sed -E '/^\\[.+]/!d;s/\\[ *([0-9]+)%].+/\\1/'"
 	set str to words of result
