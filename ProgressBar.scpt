@@ -52,8 +52,7 @@ repeat
 	if c = 1 then set progress completed steps to y
 	do shell script "tail -2 $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null |
                          sed -E '/^\\[.+]/!d;s/\\[ *([0-9]+)%].+/\\1/'"
-	set str to words of result
-	repeat with a in str
+	repeat with a in result
 		set i to a as number
 		if not y = 0 and i = 0 then
 			set b to 1
