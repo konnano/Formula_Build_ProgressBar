@@ -39,13 +39,13 @@ if not result is "" then return
 do shell script "sed -E '/^\\[.+]/!d;s/\\[ *([0-9]+)%].+/\\1/' \\
                  $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null | uniq |
 perl -ne '$h||=0;$h=1 if $i&&$_==0;if($h&&$_<=100){$h=0 if $_==100;next};$i=$_;END{print $i,$h}'"
-if not result is "" then
+if result is "" then
+	set y to 0
+	set c to 0
+else
 	set p to words of result
 	set y to item 1 of p as number
 	set c to item 2 of p as number
-else
-	set y to 0
-	set c to 0
 end if
 set b to 0
 repeat
