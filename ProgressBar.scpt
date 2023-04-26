@@ -38,7 +38,7 @@ if not result is "" then return
 
 do shell script "sed -E '/^\\[.+]/!d;s/\\[ *([0-9]+)%].+/\\1/' \\
                  $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null | uniq |
-perl -ne '$h||=0;$h=1 if $i&&$_==0;if($h&&$_<=100){$h=0 if $_==100;next};$i=$_;END{print $i,$h}'"
+perl -ne '$h||=0;$h=1 if $i&&$_==0;if($h&&$_<=100){$h=0 if $_==100;next}$i=$_;END{print $i,$h}'"
 if result is "" then
 	set y to 0
 	set c to 0
@@ -52,7 +52,8 @@ repeat
 	if c = 1 then set progress completed steps to y
 	do shell script "tail -2 $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null |
                          sed -E '/^\\[.+]/!d;s/\\[ *([0-9]+)%].+/\\1/'"
-	repeat with a in result
+	set str to words of result
+	repeat with a in str
 		set i to a as number
 		if not y = 0 and i = 0 then
 			set b to 1
