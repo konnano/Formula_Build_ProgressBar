@@ -80,7 +80,7 @@ repeat
 		repeat
 			do shell script "tail $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null \\
                                              >$HOME/Library/Logs/Homebrew/" & m & "/diff1.txt"
-			delay 5
+			delay 10
 			do shell script "tail $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null \\
                                              >$HOME/Library/Logs/Homebrew/" & m & "/diff2.txt"
 			do shell script "diff $HOME/Library/Logs/Homebrew/" & m & "/diff1.txt \\
