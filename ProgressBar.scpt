@@ -76,6 +76,8 @@ repeat
 	end if
 	if y = 100 then
 		repeat
+			tell application "System Events" to exists file ("~/Library/Logs/Homebrew/" & m & "/03.cmake")
+			if result is true then exit repeat
 			do shell script "tail $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null \\
                                              >$HOME/Library/Logs/Homebrew/" & m & "/diff1.txt"
 			delay 10
