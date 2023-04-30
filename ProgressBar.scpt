@@ -3,31 +3,29 @@ set progress total steps to 100
 repeat
 	display dialog "Formula" default answer ""
 	set m to text returned of result
-	
-	set e to do shell script "[ -f $HOME/Library/Logs/Homebrew/" & m & "/01.cmake ] || echo 1"
-	if e is "1" then display dialog "File not exist : $HOME/Library/Logs/Homebrew/" & m & "/01.cmake"
-	
-	set f to do shell script "[ -f $HOME/Library/Logs/Homebrew/" & m & "/02.cmake ] || echo 1"
-	if e is "" then
-		if f is "1" then display notification " configure...." with title "Wait"
+	tell application "System Events"
+		set e to exists file ("~/Library/Logs/Homebrew/" & m & "/01.cmake")
+		set f to exists file ("~/Library/Logs/Homebrew/" & m & "/02.cmake")
+	end tell
+	if e is true then
+		if f is false then display notification " configure...." with title "Wait"
 		repeat
 			do shell script "tail -1 $HOME/Library/Logs/Homebrew/" & m & "/01.cmake 2>/dev/null |
                                          sed 's/.*Build files have been written.*/1/'"
 			if result is "1" then
-				if f is "1" then display notification " configure...." with title "Success"
+				if f is false then display notification " configure...." with title "Success"
 				set k to 1
 				exit repeat
 			end if
 		end repeat
+	else
+		display dialog "File not exist : $HOME/Library/Logs/Homebrew/" & m & "/01.cmake"
 	end if
 	if k = 1 then exit repeat
 end repeat
-delay 1
-do shell script "[ -f $HOME/Library/Logs/Homebrew/" & m & "/02.cmake ] || echo 1"
-if result is "1" then
-	display dialog "File not exist : $HOME/Library/Logs/Homebrew/" & m & "/02.cmake"
-	return
-end if
+delay 0.5
+tell application "System Events" to exists file ("~/Library/Logs/Homebrew/" & m & "/02.cmake")
+if result is false then return
 
 do shell script "tail -2 $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null | head -c 6"
 if result is "[100%]" then return
@@ -106,6 +104,8 @@ repeat
 end repeat
 
 try
-	do shell script "rm $HOME/Library/Logs/Homebrew/" & m & "/diff1.txt 2>/dev/null \\
-                            $HOME/Library/Logs/Homebrew/" & m & "/diff2.txt 2>/dev/null"
+	tell application "System Events"
+		delete file ("~/Library/Logs/Homebrew/" & m & "/diff1.txt")
+		delete file ("~/Library/Logs/Homebrew/" & m & "/diff2.txt")
+	end tell
 end try
