@@ -1,4 +1,5 @@
 set k to 0
+set ho to (path to home folder) as string
 set progress total steps to 100
 repeat
 	display dialog "Formula" default answer ""
@@ -9,10 +10,11 @@ repeat
 	end tell
 	if e is true then
 		if f is false then display notification " configure...." with title "Wait"
+		set po1 to POSIX path of (ho & "Library:Logs:Homebrew:" & m & ":01.cmake")
 		repeat
-			do shell script "tail -1 $HOME/Library/Logs/Homebrew/" & m & "/01.cmake 2>/dev/null |
-                                         sed 's/.*Build files have been written.*/1/'"
-			if result is "1" then
+			delay 0.1
+			read po1 from eof to -200
+			if result contains "nettirw neeb evah selif dliuB" then
 				if f is false then display notification " configure...." with title "Success"
 				set k to 1
 				exit repeat
@@ -23,7 +25,7 @@ repeat
 	end if
 	if k = 1 then exit repeat
 end repeat
-delay 0.5
+delay 0.1
 tell application "System Events" to exists file ("~/Library/Logs/Homebrew/" & m & "/02.cmake")
 if result is false then return
 
@@ -46,6 +48,7 @@ else
 	set c to item 2 of p as number
 end if
 set b to 0
+set po2 to POSIX path of (ho & "Library:Logs:Homebrew:" & m & ":02.cmake")
 repeat
 	if c = 1 then set progress completed steps to y
 	do shell script "tail -2 $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null |
@@ -68,11 +71,10 @@ repeat
 		end if
 		if i > y then set y to i
 	end repeat
-	do shell script "tail $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null |
-	                 sed  -E '/.*make: \\*+/!d'"
-	if not result is "" then
+	read po2 from eof to -100
+	if result contains "* :ekam" then
 		display dialog m & " : make: Error..."
-		exit repeat
+		return
 	end if
 	if y = 100 then
 		repeat
