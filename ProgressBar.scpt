@@ -1,5 +1,5 @@
 set k to 0
-set ho to (path to home folder) as string
+set ho to (path to home folder) as text
 set progress total steps to 100
 repeat
 	display dialog "Formula" default answer ""
@@ -48,20 +48,30 @@ else
 	set c to item 2 of p as number
 end if
 set b to 0
+set num to {}
 set po2 to POSIX path of (ho & "Library:Logs:Homebrew:" & m & ":02.cmake")
 repeat
 	if c = 1 then set progress completed steps to y
-	do shell script "tail -2 $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null |
-                         sed -E '/^\\[.+]/!d;s/\\[ *([0-9]+)%].+/\\1/'"
-	set str to words of result
-	repeat with a in str
-		set i to a as number
-		if not y = 0 and i = 0 then
+	set g to get eof po2
+	delay 0.1
+	if (get eof po2) > g then
+		read po2 from g using delimiter "
+		"
+		repeat with se in result
+			if se contains "%] " then
+				my regex(se, ".*\\[ *([0-9]+)%].*", "$1")
+				set end of num to result
+			end if
+		end repeat
+	end if
+	repeat with a in num
+		set a to a as number
+		if not y = 0 and a = 0 then
 			set b to 1
 			exit repeat
 		end if
 		if b = 1 or c = 1 then
-			if 100 > i then
+			if 100 > a then
 				exit repeat
 			else
 				set b to 0
@@ -69,8 +79,9 @@ repeat
 				exit repeat
 			end if
 		end if
-		if i > y then set y to i
+		if a > y then set y to a
 	end repeat
+	set num to {}
 	read po2 from eof to -100
 	if result contains "* :ekam" then
 		display dialog m & " : make: Error..."
@@ -113,3 +124,10 @@ try
 		delete file ("~/Library/Logs/Homebrew/" & m & "/diff2.txt")
 	end tell
 end try
+
+use scripting additions
+use framework "Foundation"
+on regex(aText as text, pattern as text, replace as text)
+	set regularExpression to current application's NSRegularExpression's regularExpressionWithPattern:pattern options:0 |error|:(missing value)
+	return (regularExpression's stringByReplacingMatchesInString:aText options:0 range:{location:0, |length|:count aText} withTemplate:replace) as text
+end regex
