@@ -25,7 +25,7 @@ repeat
 	end if
 	if k = 1 then exit repeat
 end repeat
-delay 0.1
+delay 1
 tell application "System Events" to exists file ("~/Library/Logs/Homebrew/" & m & "/02.cmake")
 if result is false then return
 
