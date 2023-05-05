@@ -7,15 +7,16 @@ repeat
 	tell application "System Events"
 		set e to exists file ("~/Library/Logs/Homebrew/" & m & "/01.cmake")
 		set f to exists file ("~/Library/Logs/Homebrew/" & m & "/02.cmake")
+		set d to exists file ("~/Library/Logs/Homebrew/" & m & "/02.make")
 	end tell
 	if e is true then
-		if f is false then display notification " configure...." with title "Wait"
-		set po1 to POSIX path of (ho & "Library:Logs:Homebrew:" & m & ":01.cmake")
+		if f is false and d is false then display notification " configure...." with title "Wait"
+		set po to POSIX path of (ho & "Library:Logs:Homebrew:" & m & ":01.cmake")
 		repeat
 			delay 0.1
-			read po1 from eof to -200
+			read po from eof to -200
 			if result contains "nettirw neeb evah selif dliuB" then
-				if f is false then display notification " configure...." with title "Success"
+				if f is false and d is false then display notification " configure...." with title "Success"
 				set k to 1
 				exit repeat
 			end if
@@ -26,22 +27,32 @@ repeat
 	if k = 1 then exit repeat
 end repeat
 delay 1
-tell application "System Events" to exists file ("~/Library/Logs/Homebrew/" & m & "/02.cmake")
-if result is false then return
+tell application "System Events"
+	set f to exists file ("~/Library/Logs/Homebrew/" & m & "/02.cmake")
+	set d to exists file ("~/Library/Logs/Homebrew/" & m & "/02.make")
+end tell
+if f is false and d is false then return
 
-do shell script "tail -2 $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null | head -c 6"
-if result is "[100%]" then return
+if f is true then
+	set e to "$HOME/Library/Logs/Homebrew/" & m & "/02.cmake"
+	set d to "~/Library/Logs/Homebrew/" & m & "/03.cmake"
+	set po to POSIX path of (ho & "Library:Logs:Homebrew:" & m & ":02.cmake")
+else
+	set e to "$HOME/Library/Logs/Homebrew/" & m & "/02.make"
+	set d to "~/Library/Logs/Homebrew/" & m & "/03.make"
+	set po to POSIX path of (ho & "Library:Logs:Homebrew:" & m & ":02.make")
+end if
 
-do shell script "sed  -E '/.*make: \\*+/!d' \\
-                 $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null"
+read po from eof to -200
+if result contains "]%001[" then return
+
+do shell script "sed '/.*make: \\*/!d' " & e & " 2>/dev/null"
 if not result is "" then return
 
-do shell script "sed -E '/^\\[.+]/!d;s/\\[ *([0-9]+)%].+/\\1/' \\
-                 $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null | uniq |
+do shell script "sed -E '/^\\[.+]/!d;s/\\[ *([0-9]+)%].+/\\1/' " & e & " | uniq |
 perl -ne '$h||=0;$h=1 if $i&&$_==0;if($h&&$_<=100){$h=0 if $_==100;next}$i=$_;END{print $i,$h}'"
 if result is "" then
-	set y to 0
-	set c to 0
+	return
 else
 	set p to words of result
 	set y to item 1 of p as number
@@ -49,13 +60,12 @@ else
 end if
 set b to 0
 set num to {}
-set po2 to POSIX path of (ho & "Library:Logs:Homebrew:" & m & ":02.cmake")
 repeat
 	if c = 1 then set progress completed steps to y
-	set g to get eof po2
+	set g to get eof po
 	delay 0.1
-	if (get eof po2) > g then
-		read po2 from g using delimiter "
+	if (get eof po) > g then
+		read po from g using delimiter "
 		"
 		repeat with se in result
 			if se contains "%] " then
@@ -82,27 +92,24 @@ repeat
 		if a > y then set y to a
 	end repeat
 	set num to {}
-	read po2 from eof to -100
+	read po from eof to -200
 	if result contains "* :ekam" then
 		display dialog m & " : make: Error..."
 		return
 	end if
 	if y = 100 then
 		repeat
-			tell application "System Events" to exists file ("~/Library/Logs/Homebrew/" & m & "/03.cmake")
+			tell application "System Events" to exists file (d)
 			if result is true then exit repeat
-			do shell script "tail $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null \\
-                                             >$HOME/Library/Logs/Homebrew/" & m & "/diff1.txt"
+			do shell script "tail " & e & " 2>/dev/null >$HOME/Library/Logs/Homebrew/" & m & "/diff1.txt"
 			delay 10
-			do shell script "tail $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null \\
-                                             >$HOME/Library/Logs/Homebrew/" & m & "/diff2.txt"
+			do shell script "tail " & e & " 2>/dev/null >$HOME/Library/Logs/Homebrew/" & m & "/diff2.txt"
 			do shell script "diff $HOME/Library/Logs/Homebrew/" & m & "/diff1.txt \\
                                               $HOME/Library/Logs/Homebrew/" & m & "/diff2.txt >/dev/null 2>&1 || echo 1"
 			if result is "" then
 				exit repeat
 			else
-				do shell script "tail -2 $HOME/Library/Logs/Homebrew/" & m & "/02.cmake 2>/dev/null |
-                                                 sed -E '/^\\[.+]/!d;s/\\[ *([0-9]+)%].+/\\1/'"
+				do shell script "tail -2 " & e & " 2>/dev/null |sed -E '/^\\[.+]/!d;s/\\[ *([0-9]+)%].+/\\1/'"
 				set s to result as number
 				if not s = 0 and y > s then
 					set y to s
