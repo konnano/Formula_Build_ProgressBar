@@ -49,7 +49,7 @@ if result contains "]%001[" then return
 do shell script "sed '/.*make: \\*/!d' " & e & " 2>/dev/null"
 if not result is "" then return
 
-do shell script "sed -E '/^\\[.+]/!d;s/\\[ *([0-9]+)%].+/\\1/' " & e & " | uniq |
+do shell script "sed -E '/^\\[.+]/!d;s/\\[ *([0-9]+)%].+/\\1/' " & e & " 2>/dev/null | uniq |
 perl -ne '$h||=0;$h=1 if $i&&$_==0;if($h&&$_<=100){$h=0 if $_==100;next}$i=$_;END{print $i,$h}'"
 if result is "" then
 	return
