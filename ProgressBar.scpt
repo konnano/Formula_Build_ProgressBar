@@ -101,12 +101,10 @@ repeat
 		repeat
 			tell application "System Events" to exists file (d)
 			if result is true then exit repeat
-			do shell script "tail " & e & " 2>/dev/null >$HOME/Library/Logs/Homebrew/" & m & "/diff1.txt"
+			set red to read po from eof to -200
 			delay 10
-			do shell script "tail " & e & " 2>/dev/null >$HOME/Library/Logs/Homebrew/" & m & "/diff2.txt"
-			do shell script "diff $HOME/Library/Logs/Homebrew/" & m & "/diff1.txt \\
-                                              $HOME/Library/Logs/Homebrew/" & m & "/diff2.txt >/dev/null 2>&1 || echo 1"
-			if result is "" then
+			read po from eof to -200
+			if result is equal to red then
 				exit repeat
 			else
 				do shell script "tail -2 " & e & " 2>/dev/null |sed -E '/^\\[.+]/!d;s/\\[ *([0-9]+)%].+/\\1/'"
@@ -124,13 +122,6 @@ repeat
 		exit repeat
 	end if
 end repeat
-
-try
-	tell application "System Events"
-		delete file ("~/Library/Logs/Homebrew/" & m & "/diff1.txt")
-		delete file ("~/Library/Logs/Homebrew/" & m & "/diff2.txt")
-	end tell
-end try
 
 use scripting additions
 use framework "Foundation"
