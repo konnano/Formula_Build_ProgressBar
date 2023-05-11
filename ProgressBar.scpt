@@ -1,6 +1,14 @@
-set k to 0
-set ho to (path to home folder) as text
+use scripting additions
+use framework "Foundation"
 set progress total steps to 100
+script scr
+	property str : ""
+	property pat : ".*\\[ *([0-9]+)%].*"
+	property rep : "$1"
+end script
+set k to 0
+global po, m
+set ho to (path to home folder) as text
 repeat
 	display dialog "Formula" default answer ""
 	set m to text returned of result
@@ -13,12 +21,20 @@ repeat
 		if f is false and d is false then display notification " configure...." with title "Wait"
 		set po to POSIX path of (ho & "Library:Logs:Homebrew:" & m & ":01.cmake")
 		repeat
-			delay 0.1
+			set g to get eof po
+			delay 0.5
 			read po from eof to -200
 			if result contains "nettirw neeb evah selif dliuB" then
 				if f is false and d is false then display notification " configure...." with title "Success"
 				set k to 1
 				exit repeat
+			end if
+			if (get eof po) = g then
+				do shell script "ps aux|grep [c]make || :"
+				if result is "" then
+					display dialog m & " : configure : Error..."
+					return
+				end if
 			end if
 		end repeat
 	else
@@ -64,16 +80,7 @@ repeat
 	if c = 1 then set progress completed steps to y
 	set g to get eof po
 	delay 0.1
-	if (get eof po) > g then
-		read po from g using delimiter "
-		"
-		repeat with se in result
-			if se contains "%] " then
-				my regex(se, ".*\\[ *([0-9]+)%].*", "$1")
-				set end of num to result
-			end if
-		end repeat
-	end if
+	if (get eof po) > g then set num to reader_1(g)
 	repeat with a in num
 		set a to a as number
 		if not y = 0 and a = 0 then
@@ -92,28 +99,29 @@ repeat
 		if a > y then set y to a
 	end repeat
 	set num to {}
-	read po from eof to -200
-	if result contains "* :ekam" then
-		display dialog m & " : make: Error..."
-		return
-	end if
+	error_1()
+	if result = 1 then return
 	if y = 100 then
 		repeat
+			set g to get eof po
+			delay 0.1
 			tell application "System Events" to exists file (d)
-			if result is true then exit repeat
-			set red to read po from eof to -200
-			delay 10
-			read po from eof to -200
-			if result is equal to red then
+			if result is true then
 				exit repeat
 			else
-				do shell script "tail -2 " & e & " 2>/dev/null |sed -E '/^\\[.+]/!d;s/\\[ *([0-9]+)%].+/\\1/'"
-				set s to result as number
-				if not s = 0 and y > s then
-					set y to s
-					exit repeat
-				end if
+				set num to reader_1(g)
+				repeat with s in num
+					set s to s as number
+					if y > s then
+						set y to s
+						set k to 0
+						exit repeat
+					end if
+				end repeat
 			end if
+			if k = 0 then exit repeat
+			error_1()
+			if result = 1 then return
 		end repeat
 	end if
 	set progress completed steps to y
@@ -123,9 +131,30 @@ repeat
 	end if
 end repeat
 
-use scripting additions
-use framework "Foundation"
-on regex(aText as text, pattern as text, replace as text)
-	set regularExpression to current application's NSRegularExpression's regularExpressionWithPattern:pattern options:0 |error|:(missing value)
-	return (regularExpression's stringByReplacingMatchesInString:aText options:0 range:{location:0, |length|:count aText} withTemplate:replace) as text
-end regex
+on reader_1(g)
+	set num to {}
+	read po from g using delimiter "
+	"
+	repeat with se in result
+		if se contains "%] " then
+			set str of scr to se
+			my regex_1(scr)
+			set end of num to result
+		end if
+	end repeat
+	return num
+end reader_1
+
+on error_1()
+	read po from eof to -200
+	if result contains "* :ekam" then
+		display dialog m & " : make : Error..."
+		return 1
+	end if
+	return 0
+end error_1
+
+on regex_1(scr)
+	set regularExpression to current application's NSRegularExpression's regularExpressionWithPattern:(pat of scr) options:0 |error|:(missing value)
+	return (regularExpression's stringByReplacingMatchesInString:(str of scr) options:0 range:{location:0, |length|:count (str of scr) as text} withTemplate:(rep of scr)) as text
+end regex_1
