@@ -5,9 +5,12 @@ script scr
 	property str : ""
 	property pat : ".*\\[ *([0-9]+)%].*"
 	property rep : "$1"
+	property num : {}
+	property pth : ""
+	property fom : ""
+	property con : 0
 end script
-set k to 0
-global po, m
+set k to false
 set ho to (path to home folder) as text
 repeat
 	display dialog "Formula" default answer ""
@@ -21,14 +24,14 @@ repeat
 		if f is false and d is false then display notification " configure...." with title "Wait"
 		set po to POSIX path of (ho & "Library:Logs:Homebrew:" & m & ":01.cmake")
 		repeat
-			set g to get eof po
-			delay 0.5
 			read po from eof to -200
 			if result contains "nettirw neeb evah selif dliuB" then
 				if f is false and d is false then display notification " configure...." with title "Success"
-				set k to 1
+				set k to true
 				exit repeat
 			end if
+			set g to get eof po
+			delay 0.5
 			if (get eof po) = g then
 				do shell script "ps aux|grep [c]make || :"
 				if result is "" then
@@ -40,7 +43,7 @@ repeat
 	else
 		display dialog "File not exist : $HOME/Library/Logs/Homebrew/" & m & "/01.cmake"
 	end if
-	if k = 1 then exit repeat
+	if k is true then exit repeat
 end repeat
 delay 1
 tell application "System Events"
@@ -75,13 +78,17 @@ else
 	set c to item 2 of p as number
 end if
 set b to 0
-set num to {}
+set pth of scr to po
+set fom of scr to m
 repeat
 	if c = 1 then set progress completed steps to y
 	set g to get eof po
 	delay 0.1
-	if (get eof po) > g then set num to reader_1(g)
-	repeat with a in num
+	if (get eof po) > g then
+		set con of scr to g
+		set scr to reader_1(scr)
+	end if
+	repeat with a in num of scr
 		set a to a as number
 		if not y = 0 and a = 0 then
 			set b to 1
@@ -98,9 +105,8 @@ repeat
 		end if
 		if a > y then set y to a
 	end repeat
-	set num to {}
-	error_1()
-	if result = 1 then return
+	error_1(scr)
+	if result is true then return
 	if y = 100 then
 		repeat
 			set g to get eof po
@@ -109,19 +115,20 @@ repeat
 			if result is true then
 				exit repeat
 			else
-				set num to reader_1(g)
-				repeat with s in num
+				set con of scr to g
+				set scr to reader_1(scr)
+				repeat with s in num of scr
 					set s to s as number
 					if y > s then
 						set y to s
-						set k to 0
+						set k to false
 						exit repeat
 					end if
 				end repeat
 			end if
-			if k = 0 then exit repeat
-			error_1()
-			if result = 1 then return
+			if k is false then exit repeat
+			error_1(scr)
+			if result is true then return
 		end repeat
 	end if
 	set progress completed steps to y
@@ -131,27 +138,27 @@ repeat
 	end if
 end repeat
 
-on reader_1(g)
-	set num to {}
-	read po from g using delimiter "
+on reader_1(scr)
+	set num of scr to {}
+	read pth of scr from con of scr using delimiter "
 	"
 	repeat with se in result
 		if se contains "%] " then
 			set str of scr to se
-			my regex_1(scr)
-			set end of num to result
+			regex_1(scr)
+			set end of num of scr to result
 		end if
 	end repeat
-	return num
+	return scr
 end reader_1
 
-on error_1()
-	read po from eof to -200
+on error_1(scr)
+	read pth of scr from eof to -200
 	if result contains "* :ekam" then
-		display dialog m & " : make : Error..."
-		return 1
+		display dialog fom of scr & " : make : Error..."
+		return true
 	end if
-	return 0
+	return false
 end error_1
 
 on regex_1(scr)
