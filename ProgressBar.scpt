@@ -2,15 +2,15 @@ use scripting additions
 use framework "Foundation"
 set progress total steps to 100
 script scr
-	property str : ""
-	property pat : ".*\\[ *([0-9]+)%].*"
-	property rep : "$1"
-	property num : {}
 	property pth : ""
 	property fom : ""
+	property str : ""
 	property con : 0
+	property num : {}
+	property rep : "$1"
+	property pat : ".*\\[ *([0-9]+)%].*"
 end script
-set k to false
+set k to true
 set ho to (path to home folder) as text
 repeat
 	display dialog "Formula" default answer ""
@@ -27,7 +27,7 @@ repeat
 			read po from eof to -200
 			if result contains "nettirw neeb evah selif dliuB" then
 				if f is false and d is false then display notification " configure...." with title "Success"
-				set k to true
+				set k to false
 				exit repeat
 			end if
 			set g to get eof po
@@ -43,7 +43,7 @@ repeat
 	else
 		display dialog "File not exist : $HOME/Library/Logs/Homebrew/" & m & "/01.cmake"
 	end if
-	if k is true then exit repeat
+	if k is false then exit repeat
 end repeat
 delay 1
 tell application "System Events"
@@ -121,14 +121,14 @@ repeat
 					set s to s as number
 					if y > s then
 						set y to s
-						set k to false
+						set k to true
 						exit repeat
 					end if
 				end repeat
 			end if
-			if k is false then exit repeat
 			error_1(scr)
 			if result is true then return
+			if k is true then exit repeat
 		end repeat
 	end if
 	set progress completed steps to y
