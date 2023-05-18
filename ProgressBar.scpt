@@ -65,10 +65,8 @@ end if
 read po from eof to -200
 if result contains "]%001[" then return
 
-do shell script "perl -ne  'print 1 if /^make: \\*/' " & e & " 2>/dev/null"
-if result is "1" then return
-
-do shell script "perl -ne 'next if $_!~/^\\[ *\\d+%]/;s/\\[ *([\\d]+)%].+/$1/;next if $i&&$i==$_;
+do shell script "perl -ne '$i=$h=undef,last if /^make: \\*/;
+                 next if $_!~/^\\[ *\\d+%]/;s/\\[ *([\\d]+)%].+/$1/;next if $i&&$i==$_;
                  $h||=0;$h=1 if $i&&$_==0;if($h&&$_<=100){$h=0 if $_==100;next}$i=$_;
                  END{print $i,$h}' " & e & " 2>/dev/null"
 if result is "" then
