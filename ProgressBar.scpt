@@ -80,7 +80,6 @@ else
 end if
 set b to 0
 set pth of scr to po
-log pth of scr
 set fom of scr to m
 repeat
 	if c = 1 then set progress completed steps to y
