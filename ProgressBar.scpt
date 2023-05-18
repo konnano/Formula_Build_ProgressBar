@@ -10,8 +10,7 @@ script scr
 	property rep : "$1"
 	property pat : ".*\\[ *([0-9]+)%].*"
 end script
-set k to true
-set ho to (path to home folder) as text
+set {ho, k} to {(path to home folder) as text, true}
 repeat
 	display dialog "Formula" default answer ""
 	set m to text returned of result
@@ -65,20 +64,16 @@ end if
 read po from eof to -200
 if result contains "]%001[" then return
 
-do shell script "perl -ne '$i=$h=undef,last if /^make: \\*/;
-                 next if $_!~/^\\[ *\\d+%]/;s/\\[ *([\\d]+)%].+/$1/;next if $i&&$i==$_;
-                 $h||=0;$h=1 if $i&&$_==0;if($h&&$_<=100){$h=0 if $_==100;next}$i=$_;
-                 END{print $i,$h}' " & e & " 2>/dev/null"
-if result is "" then
-	return
-else
-	set p to words of result
-	set y to item 1 of p as number
-	set c to item 2 of p as number
-end if
-set b to 0
-set pth of scr to po
-set fom of scr to m
+set pe to do shell script "perl -ne '$i=$h=undef,last if /^make: \\*/;
+                           next if $_!~/^\\[ *\\d+%]/;s/\\[ *([\\d]+)%].+/$1/;next if $i&&$i==$_;
+                           $h||=0;$h=1 if $i&&$_==0;if($h&&$_<=100){$h=0 if $_==100;next}$i=$_;
+                           END{print $i,$h}' " & e & " 2>/dev/null"
+if pe is "" then return
+
+set p to words of pe
+set y to item 1 of p as number
+set c to item 2 of p as number
+set {pth of scr, fom of scr, b} to {po, m, 0}
 repeat
 	if c = 1 then set progress completed steps to y
 	set g to get eof po
@@ -97,8 +92,7 @@ repeat
 			if 100 > a then
 				exit repeat
 			else
-				set b to 0
-				set c to 0
+				set {b, c} to {0, 0}
 				exit repeat
 			end if
 		end if
@@ -119,8 +113,7 @@ repeat
 				repeat with s in num of scr
 					set s to s as number
 					if y > s then
-						set y to s
-						set k to true
+						set {y, k} to {s, true}
 						exit repeat
 					end if
 				end repeat
