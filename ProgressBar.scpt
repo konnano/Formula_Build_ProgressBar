@@ -33,7 +33,7 @@ repeat
 			set g to get eof po
 			delay 0.5
 			if (get eof po) = g then
-				do shell script "ps aux|grep [c]make || :"
+				do shell script "ps x|grep [c]make || :"
 				if result is "" then
 					display dialog m & " : configure : Error..."
 					return
@@ -80,6 +80,7 @@ else
 end if
 set b to 0
 set pth of scr to po
+log pth of scr
 set fom of scr to m
 repeat
 	if c = 1 then set progress completed steps to y
