@@ -155,5 +155,5 @@ end error_1
 
 on regex_1(scr)
 	set regularExpression to current application's NSRegularExpression's regularExpressionWithPattern:(pat of scr) options:0 |error|:(missing value)
-	return (regularExpression's stringByReplacingMatchesInString:(str of scr) options:0 range:{location:0, |length|:count (str of scr) as text} withTemplate:(rep of scr)) as text
+	return (regularExpression's stringByReplacingMatchesInString:(str of scr) options:0 range:{location:0, |length|:length of (str of scr)} withTemplate:(rep of scr)) as text
 end regex_1
