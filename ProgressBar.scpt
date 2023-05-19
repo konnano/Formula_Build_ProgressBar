@@ -88,19 +88,21 @@ repeat
 	end if
 	repeat with a in num of scr
 		set a to a as number
-		if not y = 0 and a = 0 then
-			set b to 1
-			exit repeat
-		end if
-		if b = 1 or c = 1 then
-			if 100 > a then
-				exit repeat
-			else
-				set {b, c} to {0, 0}
+		repeat 1 times
+			if not y = 0 and a = 0 then
+				set b to 1
 				exit repeat
 			end if
-		end if
-		if a > y then set y to a
+			if b = 1 or c = 1 then
+				if 100 > a then
+					exit repeat
+				else
+					set {b, c} to {0, 0}
+					exit repeat
+				end if
+			end if
+			if a > y then set y to a
+		end repeat
 	end repeat
 	error_1(scr)
 	if result is true then return
