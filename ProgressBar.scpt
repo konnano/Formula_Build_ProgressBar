@@ -80,7 +80,7 @@ end if
 set {pth of scr, fom of scr, b} to {po, m, 0}
 repeat
 	if c = 1 then set progress completed steps to y
-	set g to get eof po
+	set {g, num of scr} to {get eof po, {}}
 	delay 0.1
 	if (get eof po) > g then
 		set con of scr to g
@@ -136,7 +136,6 @@ repeat
 end repeat
 
 on reader_1(scr)
-	set num of scr to {}
 	read pth of scr from con of scr using delimiter "
 	"
 	repeat with se in result
