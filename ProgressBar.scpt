@@ -71,15 +71,14 @@ do shell script "perl -ne 'next if $_!~/^\\[ *\\d+%]/;s/\\[ *([\\d]+)%].+/$1/;ne
                  $h||=0;$h=1 if $i&&$_==0;if($h&&$_<=100){$h=0 if $_==100;next}$i=$_;
                  END{print $i,$h}' " & e & " 2>/dev/null"
 if result is "" then
-	set {y, c} to {0, 0}
+	set {y, b} to {0, 0}
 else
 	set p to words of result
 	set y to item 1 of p as number
-	set c to item 2 of p as number
+	set b to item 2 of p as number
 end if
 set {pth of scr, fom of scr, b} to {po, m, 0}
 repeat
-	if c = 1 then set progress completed steps to y
 	set {g, num of scr} to {get eof po, {}}
 	delay 0.1
 	if (get eof po) > g then
@@ -89,15 +88,15 @@ repeat
 	repeat with a in num of scr
 		set a to a as number
 		repeat 1 times
-			if not y = 0 and a = 0 then
+			if a < y then
 				set b to 1
 				exit repeat
 			end if
-			if b = 1 or c = 1 then
+			if b = 1 then
 				if 100 > a then
 					exit repeat
 				else
-					set {b, c} to {0, 0}
+					set b to 0
 					exit repeat
 				end if
 			end if
