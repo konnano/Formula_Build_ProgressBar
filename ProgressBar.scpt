@@ -108,7 +108,7 @@ repeat
 	if result is true then return
 	if y = 100 then
 		repeat
-			set {g, num of scr} to {get eof po, {}}
+			set {g, k, num of scr} to {get eof po, false, {}}
 			delay 0.1
 			tell application "System Events" to exists file (d)
 			if result is true then
