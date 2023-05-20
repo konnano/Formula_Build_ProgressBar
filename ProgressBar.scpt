@@ -108,24 +108,27 @@ repeat
 	if result is true then return
 	if y = 100 then
 		repeat
-			set g to get eof po
+			set {g, num of scr} to {get eof po, {}}
 			delay 0.1
 			tell application "System Events" to exists file (d)
 			if result is true then
 				exit repeat
 			else
-				set con of scr to g
-				set scr to reader_1(scr)
+				if (get eof po) > g then
+					set con of scr to g
+					set scr to reader_1(scr)
+				end if
 				repeat with s in num of scr
 					set s to s as number
 					if y > s then
-						set y to s
+						set {y, k} to {s, true}
 						exit repeat
 					end if
 				end repeat
 			end if
 			error_1(scr)
 			if result is true then return
+			if k is true then exit repeat
 		end repeat
 	end if
 	set progress completed steps to y
