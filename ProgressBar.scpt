@@ -116,6 +116,10 @@ repeat
 				if (get eof po) > g then
 					set con of scr to g
 					set scr to reader_1(scr)
+					if con of scr = 0 then
+						set y to 100
+						exit repeat
+					end if
 				end if
 				repeat with s in num of scr
 					set s to s as number
@@ -145,6 +149,8 @@ on reader_1(scr)
 			set str of scr to se
 			regex_1(scr)
 			set end of num of scr to result
+		else if se contains "Install the project..." then
+			set con of scr to 0
 		end if
 	end repeat
 	return scr
