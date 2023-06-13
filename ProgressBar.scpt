@@ -77,7 +77,7 @@ else
 	set y to item 1 of p as number
 	set b to item 2 of p as number
 end if
-set {pth of scr, fom of scr, b} to {po, m, 0}
+set {pth of scr, fom of scr} to {po, m}
 repeat
 	set {g, num of scr} to {get eof po, {}}
 	delay 0.1
