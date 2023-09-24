@@ -6,9 +6,11 @@ script scr
 	property fom : ""
 	property str : ""
 	property con : 0
+	property stp : 0
 	property num : {}
 	property rep : "$1"
-	property pat : ".*\\[ *([0-9]+)%].*"
+	property pat1 : ".*\\[ *([0-9]+)%].*"
+	property pat2 : ".*\\[([0-9]+/[0-9]+)].*"
 end script
 set {ho, k} to {(path to home folder) as text, true}
 repeat
@@ -32,8 +34,8 @@ repeat
 			set g to get eof po
 			delay 0.5
 			if (get eof po) = g then
-				do shell script "ps x|grep [c]make || :"
-				if result is "" then
+				do shell script "killall -INFO cmake||echo 1"
+				if result is "1" then
 					display dialog m & " : configure : Error..."
 					return
 				end if
@@ -44,7 +46,8 @@ repeat
 	end if
 	if k is false then exit repeat
 end repeat
-delay 1
+
+delay 2
 tell application "System Events"
 	set f to exists file ("~/Library/Logs/Homebrew/" & m & "/02.cmake")
 	set d to exists file ("~/Library/Logs/Homebrew/" & m & "/02.make")
@@ -61,30 +64,43 @@ else
 	set po to POSIX path of (ho & "Library:Logs:Homebrew:" & m & ":02.make")
 end if
 
-read po from eof to -200
-if result contains "]%001[" then return
+set {Shell, loop} to {"", 0}
+repeat 10 times
+	delay 1
+	set loop to loop + 1
+	set Shell to do shell script "
+          perl -ne '$i=$h=$e=2,last if /^make: \\*/;next if $_!~m|^\\[\\d+/\\d+]|&&$_!~/^\\[ *\\d+%]/;
+          m|^\\[\\d+/(\\d+)]|,$e=$1||'t' unless $e;
+	   s|\\[([\\d]+)/(\\d+)].+|eval int $1/$2*100|e;s/\\[ *([\\d]+)%].+/$1/;
+	   next if $i&&$i==$_;$h||=0;$h=1 if $i&&$i>$_;
+          if($h&&$_<=100){$h=0 if $_==100;next}$i=$_;END{print qq{$i$h
+$e}}' " & e & " 2>/dev/null"
+	if not Shell is "" then exit repeat
+end repeat
+if loop = 10 then return
 
-do shell script "perl -ne '$i=$h=2,last if /^make: \\*/;
-                 next if $_!~/^\\[ *\\d+%]/;s/\\[ *([\\d]+)%].+/$1/;next if $i&&$i==$_;
-                 $h||=0;$h=1 if $i&&$_==0;if($h&&$_<=100){$h=0 if $_==100;next}$i=$_;
-                 END{print $i,$h}' " & e & " 2>/dev/null"
-if result is "22" then
+if Shell is "22" & return & "2" then
 	return
-else if result is "" then
-	set {y, b} to {0, 0}
 else
-	set p to words of result
+	set p to words of Shell
 	set y to item 1 of p as number
 	set b to item 2 of p as number
+	set stp of scr to item 3 of p
 end if
 set {pth of scr, fom of scr} to {po, m}
 repeat
 	set {g, num of scr} to {get eof po, {}}
-	delay 0.1
+	if not stp of scr is "t" then
+		delay 0.5
+	else
+		delay 0.1
+	end if
 	if (get eof po) > g then
 		set con of scr to g
 		set scr to reader_1(scr)
 	end if
+	error_1(scr)
+	if result is true then return
 	repeat with a in num of scr
 		set a to a as number
 		repeat 1 times
@@ -103,8 +119,6 @@ repeat
 			if a > y then set y to a
 		end repeat
 	end repeat
-	error_1(scr)
-	if result is true then return
 	if y = 100 then
 		repeat
 			set {g, k, num of scr} to {get eof po, false, {}}
@@ -116,11 +130,9 @@ repeat
 				if (get eof po) > g then
 					set con of scr to g
 					set scr to reader_1(scr)
-					if con of scr = 0 then
-						set y to 100
-						exit repeat
-					end if
 				end if
+				error_1(scr)
+				if result is true then return
 				repeat with s in num of scr
 					set s to s as number
 					if y > s then
@@ -129,9 +141,9 @@ repeat
 					end if
 				end repeat
 			end if
-			error_1(scr)
-			if result is true then return
 			if k is true then exit repeat
+			do shell script "killall -INFO cmake||echo 1"
+			if result is "1" then exit repeat
 		end repeat
 	end if
 	set progress completed steps to y
@@ -145,27 +157,40 @@ on reader_1(scr)
 	read pth of scr from con of scr using delimiter "
 	"
 	repeat with se in result
-		if se contains "%] " then
+		if se contains "] " then
 			set str of scr to se
-			regex_1(scr)
+			if stp of scr is "t" then
+				regex_1(scr)
+			else
+				regex_2(scr)
+			end if
 			set end of num of scr to result
-		else if se contains "Install the project..." then
-			set con of scr to 0
 		end if
 	end repeat
-	return scr
+	scr
 end reader_1
 
 on error_1(scr)
 	read pth of scr from eof to -200
-	if result contains "* :ekam" then
+	if result contains "* :ekam" or result contains ":deppots dliub :ajnin" then
 		display dialog fom of scr & " : make : Error..."
 		return true
 	end if
-	return false
+	false
 end error_1
 
 on regex_1(scr)
-	set regularExpression to current application's NSRegularExpression's regularExpressionWithPattern:(pat of scr) options:0 |error|:(missing value)
-	return (regularExpression's stringByReplacingMatchesInString:(str of scr) options:0 range:{location:0, |length|:length of (str of scr)} withTemplate:(rep of scr)) as text
+	set regularExpression to current application's NSRegularExpression's regularExpressionWithPattern:(pat1 of scr) options:0 |error|:(missing value)
+	(regularExpression's stringByReplacingMatchesInString:(str of scr) options:0 range:{location:0, |length|:length of (str of scr)} withTemplate:(rep of scr)) as text
 end regex_1
+
+on regex_2(scr)
+	set regularExpression to current application's NSRegularExpression's regularExpressionWithPattern:(pat2 of scr) options:0 |error|:(missing value)
+	set r to (regularExpression's stringByReplacingMatchesInString:(str of scr) options:0 range:{location:0, |length|:length of (str of scr)} withTemplate:(rep of scr)) as text
+	set text item delimiters of AppleScript to "/"
+	try
+		(text item 1 of r) / (text item 2 of r) * 100 as integer
+	on error
+		100
+	end try
+end regex_2
