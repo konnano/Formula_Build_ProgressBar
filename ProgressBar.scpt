@@ -119,7 +119,7 @@ repeat
 			if a > y then set y to a
 		end repeat
 	end repeat
-	if y = 100 then
+	if y ≥ 100 then
 		repeat
 			set {g, k, num of scr} to {get eof po, false, {}}
 			delay 0.1
