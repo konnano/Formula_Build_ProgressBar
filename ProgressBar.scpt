@@ -71,13 +71,13 @@ repeat 10 times
 	set Shell to do shell script "
           perl -ne '$i=$h=$e=2,last if /^make: \\*/;next if $_!~m|^\\[\\d+/\\d+]|&&$_!~/^\\[ *\\d+%]/;
           m|^\\[\\d+/(\\d+)]|,$e=$1||'t' unless $e;
-	  s|\\[([\\d]+)/(\\d+)].+|eval int $1/$2*100|e;s/\\[ *([\\d]+)%].+/$1/;
+	  s|^\\[([\\d]+)/(\\d+)].+|eval int $1/$2*100|e;s/^\\[ *([\\d]+)%].+/$1/;
 	  next if $i&&$i==$_;$h||=0;$h=1 if $i&&$i>$_;
           if($h&&$_<=100){$h=0 if $_==100;next}$i=$_;END{print qq{$i$h
 $e}}' " & e & " 2>/dev/null"
 	if not Shell is "" then exit repeat
 end repeat
-if loop = 10 then return
+if loop = 10 and Shell is "" then return
 
 if Shell is "22" & return & "2" then
 	return
@@ -90,10 +90,10 @@ end if
 set {pth of scr, fom of scr} to {po, m}
 repeat
 	set {g, num of scr} to {get eof po, {}}
-	if not stp of scr is "t" then
-		delay 0.5
-	else
+	if stp of scr is "t" then
 		delay 0.1
+	else
+		delay 0.5
 	end if
 	if (get eof po) > g then
 		set con of scr to g
@@ -122,7 +122,11 @@ repeat
 	if y ≥ 100 then
 		repeat
 			set {g, k, num of scr} to {get eof po, false, {}}
-			delay 0.1
+			if stp of scr is "t" then
+				delay 0.1
+			else
+				delay 0.5
+			end if
 			tell application "System Events" to exists file (d)
 			if result is true then
 				exit repeat
