@@ -101,11 +101,11 @@ if y = 100 and b = 0 then return
 
 set {pth of scr, fom of scr} to {po, m}
 repeat
-	set {g, num of scr} to {get eof po, {}}
 	tell application "System Events" to exists file d
 	if result is true then
 		set y to 100
 	end if
+	set {g, num of scr} to {get eof po, {}}
 	delay 0.1
 	if (get eof po) > g then
 		set con of scr to g
