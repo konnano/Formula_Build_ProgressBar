@@ -69,7 +69,8 @@ repeat 10 times
 	delay 1
 	set loop to loop + 1
 	set Shell to do shell script "
-          perl -ne '$i=$h=$e=2,last if /^make: \\*/;next if $_!~m|^\\[\\d+/\\d+]|&&$_!~/^\\[ *\\d+%]/;
+          perl -ne '$i=$h=$e=2,last if /^make: \\*/||/^ninja: build stopped:/;
+	  next if $_!~m|^\\[\\d+/\\d+]|&&$_!~/^\\[ *\\d+%]/;
           m|^\\[\\d+/(\\d+)]|,$e=$1||'t' unless $e;
 	  s|^\\[([\\d]+)/(\\d+)].+|eval int $1/$2*100|e;s/^\\[ *([\\d]+)%].+/$1/;
 	  next if $i&&$i==$_;$h||=0;$h=1 if $i&&$i>$_;
@@ -87,6 +88,8 @@ else
 	set b to item 2 of p as number
 	set stp of scr to item 3 of p
 end if
+if y = 100 and b = 0 then return
+
 set {pth of scr, fom of scr} to {po, m}
 repeat
 	set {g, num of scr} to {get eof po, {}}
