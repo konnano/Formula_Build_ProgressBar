@@ -34,7 +34,7 @@ repeat
 			set g to get eof po
 			delay 0.5
 			if (get eof po) = g then
-				do shell script "killall -INFO cmake||echo 1"
+				do shell script "killall -INFO cmake 2>/dev/null||echo 1"
 				if result is "1" then
 					display dialog m & " : configure : Error..."
 					return
@@ -149,7 +149,7 @@ repeat
 				end repeat
 			end if
 			if k is true then exit repeat
-			do shell script "killall -INFO cmake||echo 1"
+			do shell script "killall -INFO cmake 2>/dev/null||echo 1"
 			if result is "1" then exit repeat
 		end repeat
 	end if
