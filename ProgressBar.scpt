@@ -157,12 +157,14 @@ repeat
 				end repeat
 			end if
 			if k is true then exit repeat
-			if mes of scr is "cmake" then
-				do shell script "killall -INFO cmake 2>/dev/null||echo 1"
-			else
-				do shell script "killall -INFO Python 2>/dev/null||echo 1"
+			if (cou of scr) mod 10 = 0 then
+				if mes of scr is "cmake" then
+					do shell script "killall -INFO cmake 2>/dev/null||echo 1"
+				else
+					do shell script "killall -INFO Python 2>/dev/null||echo 1"
+				end if
+				if result is "1" then exit repeat
 			end if
-			if result is "1" then exit repeat
 		end repeat
 	end if
 	set progress completed steps to y
@@ -222,7 +224,7 @@ on regex_2(scr)
 	set r to (regularExpression's stringByReplacingMatchesInString:(str of scr) options:0 range:{location:0, |length|:length of (str of scr)} withTemplate:(rep of scr)) as text
 	set text item delimiters of AppleScript to "/"
 	try
-		(text item 1 of r) / (text item 2 of r) * 100 as integer
+		(text item 1 of r) / (text item 2 of r) * 100 div 1
 	on error
 		100
 	end try
