@@ -8,30 +8,33 @@ script scr
 	property con : 0
 	property stp : 0
 	property num : {}
+	property cou : 0
+	property mes : "cmake"
 	property rep : "$1"
 	property pat1 : ".*\\[ *([0-9]+)%].*"
 	property pat2 : ".*\\[([0-9]+/[0-9]+)].*"
 end script
-set {ho, k, mes} to {(path to home folder) as text, true, "cmake"}
+set {ho, k} to {(path to home folder) as text, true}
 repeat
 	display dialog "Formula" default answer ""
 	set m to text returned of result
 	tell application "System Events"
-		set e to exists file ("~/Library/Logs/Homebrew/" & m & "/01." & mes)
-		set f to exists file ("~/Library/Logs/Homebrew/" & m & "/02." & mes)
+		set e to exists file ("~/Library/Logs/Homebrew/" & m & "/01." & mes of scr)
+		set f to exists file ("~/Library/Logs/Homebrew/" & m & "/02." & mes of scr)
 		set d to exists file ("~/Library/Logs/Homebrew/" & m & "/02.make")
 		if exists file ("~/Library/Logs/Homebrew/" & m & "/01.meson") then
 			set e to true
-			set mes to "meson"
-			set f to exists file ("~/Library/Logs/Homebrew/" & m & "/02." & mes)
+			set mes of scr to "meson"
+			set f to exists file ("~/Library/Logs/Homebrew/" & m & "/02." & mes of scr)
 		end if
 	end tell
 	if e is true then
 		if f is false and d is false then display notification " configure...." with title "Wait"
-		set po to POSIX path of (ho & "Library:Logs:Homebrew:" & m & ":01." & mes)
+		set po to POSIX path of (ho & "Library:Logs:Homebrew:" & m & ":01." & mes of scr)
+		delay 0.1
 		repeat
 			read po from eof to -150
-			if result contains "nettirw neeb evah selif dliuB" or result contains "ajnin dnuoF" then
+			if result contains "nettirw neeb" or result contains "ajnin dnuoF" then
 				if f is false and d is false then display notification " configure...." with title "Success"
 				set k to false
 				exit repeat
@@ -39,7 +42,7 @@ repeat
 			set g to get eof po
 			delay 0.5
 			if (get eof po) = g then
-				if mes = "cmake" then
+				if mes of scr = "cmake" then
 					do shell script "killall -INFO cmake 2>/dev/null||echo 1"
 				else
 					do shell script "killall -INFO Python 2>/dev/null||echo 1"
@@ -51,22 +54,22 @@ repeat
 			end if
 		end repeat
 	else
-		display dialog "File not exist : $HOME/Library/Logs/Homebrew/" & m & "/01." & mes
+		display dialog "File not exist : $HOME/Library/Logs/Homebrew/" & m & "/01." & mes of scr
 	end if
 	if k is false then exit repeat
 end repeat
 
 delay 2
 tell application "System Events"
-	set f to exists file ("~/Library/Logs/Homebrew/" & m & "/02." & mes)
+	set f to exists file ("~/Library/Logs/Homebrew/" & m & "/02." & mes of scr)
 	set d to exists file ("~/Library/Logs/Homebrew/" & m & "/02.make")
 end tell
 if f is false and d is false then return
 
 if f is true then
-	set e to "$HOME/Library/Logs/Homebrew/" & m & "/02." & mes
-	set d to "~/Library/Logs/Homebrew/" & m & "/03." & mes
-	set po to POSIX path of (ho & "Library:Logs:Homebrew:" & m & ":02." & mes)
+	set e to "$HOME/Library/Logs/Homebrew/" & m & "/02." & mes of scr
+	set d to "~/Library/Logs/Homebrew/" & m & "/03." & mes of scr
+	set po to POSIX path of (ho & "Library:Logs:Homebrew:" & m & ":02." & mes of scr)
 else
 	set e to "$HOME/Library/Logs/Homebrew/" & m & "/02.make"
 	set d to "~/Library/Logs/Homebrew/" & m & "/03.make"
@@ -78,7 +81,7 @@ repeat 10 times
 	delay 1
 	set loop to loop + 1
 	set Shell to do shell script "
-          perl -ne '$i=$h=$e=2,last if /^make: \\*/||/^ninja: build stopped:/||/KeyboardInterrupt/;
+          perl -ne '$i=$h=$e=2,last if /^make: \\*/||/^ninja: build stopped:/||/^KeyboardInterrupt/;
 	  next if $_!~m|^\\[\\d+/\\d+]|&&$_!~/^\\[ *\\d+%]/;
           m|^\\[\\d+/(\\d+)]|,$e=$1||'t' unless $e;
 	  s|^\\[([\\d]+)/(\\d+)].+|eval int $1/$2*100|e;s/^\\[ *([\\d]+)%].+/$1/;
@@ -102,39 +105,39 @@ if y = 100 and b = 0 then return
 set {pth of scr, fom of scr} to {po, m}
 repeat
 	tell application "System Events" to exists file d
-	if result is true then
-		set y to 100
-	end if
+	if result is true then set y to 100
 	set {g, num of scr} to {get eof po, {}}
-	delay 0.1
+	error_1(scr)
+	if result is true then return
 	if (get eof po) > g then
 		set con of scr to g
 		set scr to reader_1(scr)
 	end if
-	error_1(scr)
-	if result is true then return
 	repeat with a in num of scr
-		set a to a as number
-		repeat 1 times
-			if a < y then
-				set b to 1
-				exit repeat
-			end if
-			if b = 1 then
-				if 100 > a then
-					exit repeat
-				else
-					set b to 0
+		try
+			set a to a as number
+			repeat 1 times
+				if a < y then
+					set b to 1
 					exit repeat
 				end if
-			end if
-			if a > y then set y to a
-		end repeat
+				if b = 1 then
+					if 100 > a then
+						exit repeat
+					else
+						set b to 0
+						exit repeat
+					end if
+				end if
+				if a > y then set y to a
+			end repeat
+		end try
 	end repeat
 	if y ≥ 100 then
 		repeat
 			set {g, k, num of scr} to {get eof po, false, {}}
-			delay 0.1
+			error_1(scr)
+			if result is true then return
 			tell application "System Events" to exists file d
 			if result is true then
 				exit repeat
@@ -143,18 +146,18 @@ repeat
 					set con of scr to g
 					set scr to reader_1(scr)
 				end if
-				error_1(scr)
-				if result is true then return
 				repeat with s in num of scr
-					set s to s as number
-					if y > s then
-						set {y, k} to {s, true}
-						exit repeat
-					end if
+					try
+						set s to s as number
+						if y > s then
+							set {y, k} to {s, true}
+							exit repeat
+						end if
+					end try
 				end repeat
 			end if
 			if k is true then exit repeat
-			if mes is "cmake" then
+			if mes of scr is "cmake" then
 				do shell script "killall -INFO cmake 2>/dev/null||echo 1"
 			else
 				do shell script "killall -INFO Python 2>/dev/null||echo 1"
@@ -188,10 +191,23 @@ end reader_1
 
 on error_1(scr)
 	delay 0.1
-	read pth of scr from eof to -150
-	if result contains "* :ekam" or result contains ":deppots dliub :ajnin" or result contains "tpurretnIdraobyeK" then
+	read pth of scr from eof to -200
+	if result contains "* :ekam" or result contains ":deppots dliub" or result contains "tpurretnIdraobyeK" then
 		display dialog fom of scr & " : make : Error..."
 		return true
+	end if
+	set cou of scr to (cou of scr) + 1
+	if cou of scr = 50 then
+		set cou of scr to 0
+		if mes of scr is "cmake" then
+			do shell script "killall -INFO cmake 2>/dev/null||echo 1"
+		else
+			do shell script "killall -INFO Python 2>/dev/null||echo 1"
+		end if
+		if result is "1" then
+			display dialog fom of scr & " : make : Error..."
+			return true
+		end if
 	end if
 	false
 end error_1
