@@ -7,12 +7,11 @@ script scr
 	property str : ""
 	property con : 0
 	property stp : 0
-	property num : {}
 	property cou : 0
+	property num : {}
 	property mes : "cmake"
-	property rep : "$1"
-	property pat1 : ".*\\[ *([0-9]+)%].*"
-	property pat2 : ".*\\[([0-9]+/[0-9]+)].*"
+	property pat1 : "^\\[ *([0-9]+)%].*"
+	property pat2 : "^\\[([0-9]+/[0-9]+)].*"
 end script
 set {ho, k} to {(path to home folder) as text, true}
 repeat
@@ -102,6 +101,8 @@ else
 end if
 if y = 100 and b = 0 then return
 
+set tmp to text item delimiters of AppleScript
+set text item delimiters of AppleScript to "/"
 set {pth of scr, fom of scr} to {po, m}
 repeat
 	tell application "System Events" to exists file d
@@ -173,10 +174,10 @@ repeat
 		exit repeat
 	end if
 end repeat
+set text item delimiters of AppleScript to tmp
 
 on reader_1(scr)
-	read pth of scr from con of scr using delimiter "
-	"
+	read pth of scr from con of scr using delimiter linefeed
 	repeat with se in result
 		if se contains "] " then
 			set str of scr to se
@@ -216,13 +217,12 @@ end error_1
 
 on regex_1(scr)
 	set regularExpression to current application's NSRegularExpression's regularExpressionWithPattern:(pat1 of scr) options:0 |error|:(missing value)
-	(regularExpression's stringByReplacingMatchesInString:(str of scr) options:0 range:{location:0, |length|:length of (str of scr)} withTemplate:(rep of scr)) as text
+	(regularExpression's stringByReplacingMatchesInString:(str of scr) options:0 range:{location:0, |length|:length of (str of scr)} withTemplate:"$1") as text
 end regex_1
 
 on regex_2(scr)
 	set regularExpression to current application's NSRegularExpression's regularExpressionWithPattern:(pat2 of scr) options:0 |error|:(missing value)
-	set r to (regularExpression's stringByReplacingMatchesInString:(str of scr) options:0 range:{location:0, |length|:length of (str of scr)} withTemplate:(rep of scr)) as text
-	set text item delimiters of AppleScript to "/"
+	set r to (regularExpression's stringByReplacingMatchesInString:(str of scr) options:0 range:{location:0, |length|:length of (str of scr)} withTemplate:"$1") as text
 	try
 		(text item 1 of r) / (text item 2 of r) * 100 div 1
 	on error
