@@ -105,9 +105,11 @@ set tmp to text item delimiters of AppleScript
 set text item delimiters of AppleScript to "/"
 set {pth of scr, fom of scr} to {po, m}
 repeat
-	tell application "System Events" to exists file d
-	if result is true then set y to 100
 	set {g, num of scr} to {get eof po, {}}
+	if (cou of scr) mod 10 = 0 then
+		tell application "System Events" to exists file d
+		if result is true then set y to 100
+	end if
 	error_1(scr)
 	if result is true then return
 	if (get eof po) > g then
@@ -139,26 +141,23 @@ repeat
 			set {g, k, num of scr} to {get eof po, false, {}}
 			error_1(scr)
 			if result is true then return
-			tell application "System Events" to exists file d
-			if result is true then
-				exit repeat
-			else
-				if (get eof po) > g then
-					set con of scr to g
-					set scr to reader_1(scr)
-				end if
-				repeat with s in num of scr
-					try
-						set s to s as number
-						if y > s then
-							set {y, k} to {s, true}
-							exit repeat
-						end if
-					end try
-				end repeat
+			if (get eof po) > g then
+				set con of scr to g
+				set scr to reader_1(scr)
 			end if
+			repeat with s in num of scr
+				try
+					set s to s as number
+					if y > s then
+						set {y, k} to {s, true}
+						exit repeat
+					end if
+				end try
+			end repeat
 			if k is true then exit repeat
 			if (cou of scr) mod 10 = 0 then
+				tell application "System Events" to exists file d
+				if result is true then exit repeat
 				if mes of scr is "cmake" then
 					do shell script "killall -INFO cmake 2>/dev/null||echo 1"
 				else
