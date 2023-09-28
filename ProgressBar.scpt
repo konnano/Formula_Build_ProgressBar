@@ -222,9 +222,9 @@ end regex_1
 
 on regex_2(scr)
 	set regex to current application's NSRegularExpression's regularExpressionWithPattern:(pat2 of scr) options:0 |error|:(missing value)
-	set r to (regex's stringByReplacingMatchesInString:(str of scr) options:0 range:{location:0, |length|:length of (str of scr)} withTemplate:"$1") as text
+	(regex's stringByReplacingMatchesInString:(str of scr) options:0 range:{location:0, |length|:length of (str of scr)} withTemplate:"$1") as text
 	try
-		(text item 1 of r) / (text item 2 of r) * 100 div 1
+		(text item 1 of result) / (text item 2 of result) * 100 div 1
 	on error
 		100
 	end try
