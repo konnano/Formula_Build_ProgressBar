@@ -53,7 +53,7 @@ repeat
 			end if
 		end repeat
 	else
-		display dialog "File not exist : $HOME/Library/Logs/Homebrew/" & m & "/01." & mes of scr
+		display dialog "File not exist : $HOME/Library/Logs/Homebrew/" & m & "/....."
 	end if
 	if k is false then exit repeat
 end repeat
@@ -216,13 +216,13 @@ on error_1(scr)
 end error_1
 
 on regex_1(scr)
-	set regularExpression to current application's NSRegularExpression's regularExpressionWithPattern:(pat1 of scr) options:0 |error|:(missing value)
-	(regularExpression's stringByReplacingMatchesInString:(str of scr) options:0 range:{location:0, |length|:length of (str of scr)} withTemplate:"$1") as text
+	set regex to current application's NSRegularExpression's regularExpressionWithPattern:(pat1 of scr) options:0 |error|:(missing value)
+	(regex's stringByReplacingMatchesInString:(str of scr) options:0 range:{location:0, |length|:length of (str of scr)} withTemplate:"$1") as text
 end regex_1
 
 on regex_2(scr)
-	set regularExpression to current application's NSRegularExpression's regularExpressionWithPattern:(pat2 of scr) options:0 |error|:(missing value)
-	set r to (regularExpression's stringByReplacingMatchesInString:(str of scr) options:0 range:{location:0, |length|:length of (str of scr)} withTemplate:"$1") as text
+	set regex to current application's NSRegularExpression's regularExpressionWithPattern:(pat2 of scr) options:0 |error|:(missing value)
+	set r to (regex's stringByReplacingMatchesInString:(str of scr) options:0 range:{location:0, |length|:length of (str of scr)} withTemplate:"$1") as text
 	try
 		(text item 1 of r) / (text item 2 of r) * 100 div 1
 	on error
