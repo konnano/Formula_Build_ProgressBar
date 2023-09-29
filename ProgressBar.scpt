@@ -10,10 +10,11 @@ script scr
 	property cou : 0
 	property num : {}
 	property mes : "cmake"
+	property hom : (path to home folder) as text
 	property pat1 : "^\\[ *([0-9]+)%].*"
 	property pat2 : "^\\[([0-9]+/[0-9]+)].*"
 end script
-set {ho, k} to {(path to home folder) as text, true}
+set k to true
 repeat
 	display dialog "Formula" default answer ""
 	set m to text returned of result
@@ -29,7 +30,7 @@ repeat
 	end tell
 	if e is true then
 		if f is false and d is false then display notification " configure...." with title "Wait"
-		set po to POSIX path of (ho & "Library:Logs:Homebrew:" & m & ":01." & mes of scr)
+		set po to POSIX path of (hom of scr & "Library:Logs:Homebrew:" & m & ":01." & mes of scr)
 		delay 0.1
 		repeat
 			read po from eof to -150
@@ -67,12 +68,11 @@ if f is false and d is false then return
 
 if f is true then
 	set e to "$HOME/Library/Logs/Homebrew/" & m & "/02." & mes of scr
-	set d to "~/Library/Logs/Homebrew/" & m & "/03." & mes of scr
-	set po to POSIX path of (ho & "Library:Logs:Homebrew:" & m & ":02." & mes of scr)
+	set po to POSIX path of (hom of scr & "Library:Logs:Homebrew:" & m & ":02." & mes of scr)
 else
-	set e to "$HOME/Library/Logs/Homebrew/" & m & "/02.make"
-	set d to "~/Library/Logs/Homebrew/" & m & "/03.make"
-	set po to POSIX path of (ho & "Library:Logs:Homebrew:" & m & ":02.make")
+	set mes of scr to "make"
+	set e to "$HOME/Library/Logs/Homebrew/" & m & "/02." & mes of scr
+	set po to POSIX path of (hom of scr & "Library:Logs:Homebrew:" & m & ":02." & mes of scr)
 end if
 
 set {Shell, loop} to {"", 0}
@@ -106,11 +106,7 @@ set text item delimiters of AppleScript to "/"
 set {pth of scr, fom of scr} to {po, m}
 repeat
 	set {g, num of scr} to {get eof po, {}}
-	if (cou of scr) mod 10 = 0 then
-		tell application "System Events" to exists file d
-		if result is true then set y to 100
-	end if
-	error_1(scr)
+	error_1(scr, true)
 	if result is true then return
 	if (get eof po) > g then
 		set con of scr to g
@@ -139,8 +135,13 @@ repeat
 	if y ≥ 100 then
 		repeat
 			set {g, k, num of scr} to {get eof po, false, {}}
-			error_1(scr)
-			if result is true then return
+			error_1(scr, false)
+			if result is true then
+				return
+			else if result = 1 then
+				set y to 100
+				exit repeat
+			end if
 			if (get eof po) > g then
 				set con of scr to g
 				set scr to reader_1(scr)
@@ -155,16 +156,6 @@ repeat
 				end try
 			end repeat
 			if k is true then exit repeat
-			if (cou of scr) mod 10 = 0 then
-				tell application "System Events" to exists file d
-				if result is true then exit repeat
-				if mes of scr is "cmake" then
-					do shell script "killall -INFO cmake 2>/dev/null||echo 1"
-				else
-					do shell script "killall -INFO Python 2>/dev/null||echo 1"
-				end if
-				if result is "1" then exit repeat
-			end if
 		end repeat
 	end if
 	set progress completed steps to y
@@ -191,25 +182,30 @@ on reader_1(scr)
 	scr
 end reader_1
 
-on error_1(scr)
-	delay 0.1
-	read pth of scr from eof to -200
-	if result contains "* :ekam" or result contains ":deppots dliub" or result contains "tpurretnIdraobyeK" then
-		display dialog fom of scr & " : make : Error..."
-		return true
-	end if
+on error_1(scr, y)
 	set cou of scr to (cou of scr) + 1
-	if cou of scr = 50 then
+	if not cou of scr = 31 then delay 0.1
+	if (cou of scr) mod 10 = 0 then
+		try
+			(hom of scr & "Library:Logs:Homebrew:" & fom of scr & ":03." & mes of scr) as alias
+			return 1
+		end try
+	else if cou of scr = 31 then
 		set cou of scr to 0
-		if mes of scr is "cmake" then
+		if mes of scr is "cmake" or mes of scr is "make" then
 			do shell script "killall -INFO cmake 2>/dev/null||echo 1"
 		else
 			do shell script "killall -INFO Python 2>/dev/null||echo 1"
 		end if
 		if result is "1" then
-			display dialog fom of scr & " : make : Error..."
+			if y is true then display dialog fom of scr & " : make : Error..."
 			return true
 		end if
+	end if
+	read pth of scr from eof to -200
+	if result contains "* :ekam" or result contains ":deppots dliub" or result contains "tpurretnIdraobyeK" then
+		display dialog fom of scr & " : make : Error..."
+		return true
 	end if
 	false
 end error_1
