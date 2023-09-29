@@ -198,8 +198,12 @@ on error_1(scr, y)
 			do shell script "killall -INFO Python 2>/dev/null||echo 1"
 		end if
 		if result is "1" then
-			if y is true then display dialog fom of scr & " : make : Error..."
-			return true
+			if y is true then
+				display dialog fom of scr & " : make : Error..."
+				return true
+			else
+				return 1
+			end if
 		end if
 	end if
 	read pth of scr from eof to -200
