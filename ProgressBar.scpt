@@ -8,6 +8,8 @@ script scr
 	property con : 0
 	property stp : 0
 	property cou : 0
+	property reg : 0
+	property tru : 0
 	property num : {}
 	property mes : "cmake"
 	property hom : (path to home folder) as text
@@ -105,9 +107,9 @@ set tmp to text item delimiters of AppleScript
 set text item delimiters of AppleScript to "/"
 set {pth of scr, fom of scr} to {po, m}
 repeat
-	set {g, num of scr} to {get eof po, {}}
-	error_1(scr, true)
-	if result is true then return
+	set {g, num of scr, tru of scr} to {get eof po, {}, 1}
+	set scr to error_1(scr)
+	if tru of scr is true then return
 	if (get eof po) > g then
 		set con of scr to g
 		set scr to reader_1(scr)
@@ -134,11 +136,11 @@ repeat
 	end repeat
 	if y ≥ 100 then
 		repeat
-			set {g, k, num of scr} to {get eof po, false, {}}
-			error_1(scr, false)
-			if result is true then
+			set {g, k, num of scr, tru of scr} to {get eof po, false, {}, 2}
+			set scr to error_1(scr)
+			if tru of scr is true then
 				return
-			else if result = 1 then
+			else if tru of scr is false then
 				set y to 100
 				exit repeat
 			end if
@@ -172,23 +174,23 @@ on reader_1(scr)
 		if se contains "] " then
 			set str of scr to se
 			if stp of scr is "t" then
-				regex_1(scr)
+				set scr to regex_1(scr)
 			else
-				regex_2(scr)
+				set scr to regex_2(scr)
 			end if
-			set end of num of scr to result
+			set end of num of scr to reg of scr
 		end if
 	end repeat
 	scr
 end reader_1
 
-on error_1(scr, y)
+on error_1(scr)
 	set cou of scr to (cou of scr) + 1
 	if not cou of scr = 31 then delay 0.1
 	if (cou of scr) mod 10 = 0 then
 		try
 			(hom of scr & "Library:Logs:Homebrew:" & fom of scr & ":03." & mes of scr) as alias
-			return 1
+			set tru of scr to false
 		end try
 	else if cou of scr = 31 then
 		set cou of scr to 0
@@ -198,33 +200,35 @@ on error_1(scr, y)
 			do shell script "killall -INFO Python 2>/dev/null||echo 1"
 		end if
 		if result is "1" then
-			if y is true then
+			if tru of scr = 1 then
 				display dialog fom of scr & " : make : Error..."
-				return true
+				set tru of scr to true
 			else
-				return 1
+				set tru of scr to false
 			end if
 		end if
 	end if
 	read pth of scr from eof to -200
 	if result contains "* :ekam" or result contains ":deppots dliub" or result contains "tpurretnIdraobyeK" then
 		display dialog fom of scr & " : make : Error..."
-		return true
+		set tru of scr to true
 	end if
-	false
+	scr
 end error_1
 
 on regex_1(scr)
-	set regex to current application's NSRegularExpression's regularExpressionWithPattern:(pat1 of scr) options:0 |error|:(missing value)
-	(regex's stringByReplacingMatchesInString:(str of scr) options:0 range:{location:0, |length|:length of (str of scr)} withTemplate:"$1") as text
+	current application's NSRegularExpression's regularExpressionWithPattern:(pat1 of scr) options:0 |error|:(missing value)
+	set reg of scr to (result's stringByReplacingMatchesInString:(str of scr) options:0 range:{location:0, |length|:length of (str of scr)} withTemplate:"$1") as text
+	scr
 end regex_1
 
 on regex_2(scr)
-	set regex to current application's NSRegularExpression's regularExpressionWithPattern:(pat2 of scr) options:0 |error|:(missing value)
-	(regex's stringByReplacingMatchesInString:(str of scr) options:0 range:{location:0, |length|:length of (str of scr)} withTemplate:"$1") as text
+	current application's NSRegularExpression's regularExpressionWithPattern:(pat2 of scr) options:0 |error|:(missing value)
+	(result's stringByReplacingMatchesInString:(str of scr) options:0 range:{location:0, |length|:length of (str of scr)} withTemplate:"$1") as text
 	try
-		(text item 1 of result) / (text item 2 of result) * 100 div 1
+		set reg of scr to (text item 1 of result) / (text item 2 of result) * 100 div 1
 	on error
-		100
+		set reg of scr to 100
 	end try
+	scr
 end regex_2
