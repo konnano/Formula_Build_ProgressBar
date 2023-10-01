@@ -26,8 +26,7 @@ repeat
 		set f to exists file ("~/Library/Logs/Homebrew/" & m & "/02." & mes of scr)
 		set d to exists file ("~/Library/Logs/Homebrew/" & m & "/02.make")
 		if exists file ("~/Library/Logs/Homebrew/" & m & "/01.meson") then
-			set e to true
-			set mes of scr to "meson"
+			set {e, mes of scr} to {true, "meson"}
 			set f to exists file ("~/Library/Logs/Homebrew/" & m & "/02." & mes of scr)
 		end if
 	end tell
