@@ -5,13 +5,13 @@ script scr
 	property pth : ""
 	property fom : ""
 	property str : ""
+	property mes : ""
 	property con : 0
 	property stp : 0
 	property cou : 0
 	property reg : 0
 	property tru : 0
 	property num : {}
-	property mes : "cmake"
 	property hom : (path to home folder) as text
 	property pat1 : "^\\[ *([0-9]+)%].*"
 	property pat2 : "^\\[([0-9]+/[0-9]+)].*"
@@ -21,6 +21,7 @@ repeat
 	display dialog "Formula" default answer ""
 	set m to text returned of result
 	tell application "System Events"
+		set mes of scr to "cmake"
 		set e to exists file ("~/Library/Logs/Homebrew/" & m & "/01." & mes of scr)
 		set f to exists file ("~/Library/Logs/Homebrew/" & m & "/02." & mes of scr)
 		set d to exists file ("~/Library/Logs/Homebrew/" & m & "/02.make")
