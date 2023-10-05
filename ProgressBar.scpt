@@ -227,8 +227,6 @@ on regex_2(scr)
 	(result's stringByReplacingMatchesInString:(str of scr) options:0 range:{location:0, |length|:length of (str of scr)} withTemplate:"$1") as text
 	try
 		set reg of scr to (text item 1 of result) / (text item 2 of result) * 100 div 1
-	on error
-		set reg of scr to 100
 	end try
 	scr
 end regex_2
