@@ -36,7 +36,7 @@ repeat
 		delay 0.1
 		repeat
 			try
-				read po from eof to -250
+				read po from eof to -300
 			on error
 				read po from eof to -150
 			end try
