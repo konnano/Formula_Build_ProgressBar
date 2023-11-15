@@ -28,6 +28,7 @@ repeat
 		if exists file ("~/Library/Logs/Homebrew/" & m & "/01.meson") then
 			set {e, mes of scr} to {true, "meson"}
 			set f to exists file ("~/Library/Logs/Homebrew/" & m & "/02." & mes of scr)
+			set d to exists file ("~/Library/Logs/Homebrew/" & m & "/02.ninja")
 		end if
 	end tell
 	if e is true then
@@ -69,14 +70,19 @@ delay 2
 tell application "System Events"
 	set f to exists file ("~/Library/Logs/Homebrew/" & m & "/02." & mes of scr)
 	set d to exists file ("~/Library/Logs/Homebrew/" & m & "/02.make")
+	set n to exists file ("~/Library/Logs/Homebrew/" & m & "/02.ninja")
 end tell
-if f is false and d is false then return
+if f is false and d is false and n is false then return
 
 if f is true then
 	set e to "$HOME/Library/Logs/Homebrew/" & m & "/02." & mes of scr
 	set po to POSIX path of (hom of scr & "Library:Logs:Homebrew:" & m & ":02." & mes of scr)
-else
+else if d is true then
 	set mes of scr to "make"
+	set e to "$HOME/Library/Logs/Homebrew/" & m & "/02." & mes of scr
+	set po to POSIX path of (hom of scr & "Library:Logs:Homebrew:" & m & ":02." & mes of scr)
+else
+	set mes of scr to "ninja"
 	set e to "$HOME/Library/Logs/Homebrew/" & m & "/02." & mes of scr
 	set po to POSIX path of (hom of scr & "Library:Logs:Homebrew:" & m & ":02." & mes of scr)
 end if
