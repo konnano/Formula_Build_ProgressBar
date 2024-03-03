@@ -95,7 +95,7 @@ repeat 10 times
           perl -ne '$i=$h=$e=2,last if /^make: \\*/||/^ninja: build stopped:/||/^KeyboardInterrupt/;
 	  next if $_!~m|^\\[\\d+/\\d+]|&&$_!~/^\\[ *\\d+%]/;
           m|^\\[\\d+/(\\d+)]|,$e=$1||'t' unless $e;
-	  s|^\\[([\\d]+)/(\\d+)].+|eval int $1/$2*100|e;s/^\\[ *([\\d]+)%].+/$1/;
+	  s|^\\[([\\d]+)/(\\d+)].+|int $1/$2*100|e;s/^\\[ *([\\d]+)%].+/$1/;
 	  next if $i&&$i==$_;$h||=0;$h=1 if $i&&$i>$_;
           if($h&&$_<=100){$h=0 if $_==100;next}$i=$_;END{print qq{$i$h
 $e}}' " & e & " 2>/dev/null"
