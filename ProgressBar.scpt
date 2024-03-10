@@ -229,7 +229,7 @@ on error_1(scr)
 			do shell script "killall -INFO cmake 2>/dev/null||
 			                 killall -INFO make 2>/dev/null||echo 1"
 		else
-			do shell script "killall -INFO ninja 2>/dev/null||echo 1||
+			do shell script "killall -INFO ninja 2>/dev/null||
 			                 killall -INFO Python 2>/dev/null||echo 1"
 		end if
 		if result is "1" then
