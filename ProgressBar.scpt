@@ -16,7 +16,7 @@ script scr
 	property pat1 : "^\\[ *([0-9]+)%].*"
 	property pat2 : "^\\[([0-9]+/[0-9]+)].*"
 end script
-set k to true
+set {k, ten, t1, t2, n} to {true, false, false, false, false}
 repeat
 	display dialog "Formula" default answer ""
 	set m to text returned of result
@@ -29,11 +29,20 @@ repeat
 			set {e, mes of scr} to {true, "meson"}
 			set f to exists file ("~/Library/Logs/Homebrew/" & m & "/02." & mes of scr)
 			set d to exists file ("~/Library/Logs/Homebrew/" & m & "/02.ninja")
+		else if not (exists file ("~/Library/Logs/Homebrew/" & m & "/01.meson")) and ¬
+			(exists file ("~/Library/Logs/Homebrew/" & m & "/03.meson")) then
+			set {e, ten, mes of scr} to {true, true, "meson"}
+			set f to exists file ("~/Library/Logs/Homebrew/" & m & "/04." & mes of scr)
+			set d to exists file ("~/Library/Logs/Homebrew/" & m & "/04.ninja")
 		end if
 	end tell
 	if e is true then
 		if f is false and d is false then display notification " configure...." with title "Wait"
-		set po to POSIX path of (hom of scr & "Library:Logs:Homebrew:" & m & ":01." & mes of scr)
+		if ten then
+			set po to POSIX path of (hom of scr & "Library:Logs:Homebrew:" & m & ":03." & mes of scr)
+		else
+			set po to POSIX path of (hom of scr & "Library:Logs:Homebrew:" & m & ":01." & mes of scr)
+		end if
 		delay 0.1
 		repeat
 			try
@@ -68,20 +77,32 @@ end repeat
 
 delay 2
 tell application "System Events"
-	set f to exists file ("~/Library/Logs/Homebrew/" & m & "/02." & mes of scr)
-	set d to exists file ("~/Library/Logs/Homebrew/" & m & "/02.make")
-	set n to exists file ("~/Library/Logs/Homebrew/" & m & "/02.ninja")
+	if ten then
+		set t1 to exists file ("~/Library/Logs/Homebrew/" & m & "/04." & mes of scr)
+		set t2 to exists file ("~/Library/Logs/Homebrew/" & m & "/04.ninja")
+	else
+		set f to exists file ("~/Library/Logs/Homebrew/" & m & "/02." & mes of scr)
+		set d to exists file ("~/Library/Logs/Homebrew/" & m & "/02.make")
+		set n to exists file ("~/Library/Logs/Homebrew/" & m & "/02.ninja")
+	end if
 end tell
-if f is false and d is false and n is false then return
+if f is false and d is false and n is false and t1 is false and t2 is false then return
 
-if f is true then
+if t1 is true then
+	set e to "$HOME/Library/Logs/Homebrew/" & m & "/04." & mes of scr
+	set po to POSIX path of (hom of scr & "Library:Logs:Homebrew:" & m & ":04." & mes of scr)
+else if t2 is true then
+	set mes of scr to "ninja"
+	set e to "$HOME/Library/Logs/Homebrew/" & m & "/04." & mes of scr
+	set po to POSIX path of (hom of scr & "Library:Logs:Homebrew:" & m & ":04." & mes of scr)
+else if f is true then
 	set e to "$HOME/Library/Logs/Homebrew/" & m & "/02." & mes of scr
 	set po to POSIX path of (hom of scr & "Library:Logs:Homebrew:" & m & ":02." & mes of scr)
 else if d is true then
 	set mes of scr to "make"
 	set e to "$HOME/Library/Logs/Homebrew/" & m & "/02." & mes of scr
 	set po to POSIX path of (hom of scr & "Library:Logs:Homebrew:" & m & ":02." & mes of scr)
-else
+else if n is true then
 	set mes of scr to "ninja"
 	set e to "$HOME/Library/Logs/Homebrew/" & m & "/02." & mes of scr
 	set po to POSIX path of (hom of scr & "Library:Logs:Homebrew:" & m & ":02." & mes of scr)
@@ -208,7 +229,8 @@ on error_1(scr)
 			do shell script "killall -INFO cmake 2>/dev/null||
 			                 killall -INFO make 2>/dev/null||echo 1"
 		else
-			do shell script "killall -INFO ninja 2>/dev/null||echo 1"
+			do shell script "killall -INFO ninja 2>/dev/null||echo 1||
+			                 killall -INFO Python 2>/dev/null||echo 1"
 		end if
 		if result is "1" then
 			if tru of scr = 1 then
