@@ -16,7 +16,7 @@ script scr
 	property pat1 : "^\\[ *([0-9]+)%].*"
 	property pat2 : "^\\[([0-9]+/[0-9]+)].*"
 end script
-set {k, ten, t1, t2, n} to {true, false, false, false, false}
+set {k, ten, t1, t2, t3, t4, t5} to {true, false, false, false, false, false, false}
 repeat
 	display dialog "Formula" default answer ""
 	set m to text returned of result
@@ -48,7 +48,7 @@ repeat
 			try
 				read po from eof to -300
 			on error
-				read po from eof to -150
+				read po from eof to -100
 			end try
 			if result contains "nettirw neeb" or result contains "ajnin dnuoF" then
 				if f is false and d is false then display notification " configure...." with title "Success"
@@ -77,16 +77,13 @@ end repeat
 
 delay 2
 tell application "System Events"
-	if ten then
-		set t1 to exists file ("~/Library/Logs/Homebrew/" & m & "/04." & mes of scr)
-		set t2 to exists file ("~/Library/Logs/Homebrew/" & m & "/04.ninja")
-	else
-		set f to exists file ("~/Library/Logs/Homebrew/" & m & "/02." & mes of scr)
-		set d to exists file ("~/Library/Logs/Homebrew/" & m & "/02.make")
-		set n to exists file ("~/Library/Logs/Homebrew/" & m & "/02.ninja")
-	end if
+	set t1 to exists file ("~/Library/Logs/Homebrew/" & m & "/04." & mes of scr)
+	set t2 to exists file ("~/Library/Logs/Homebrew/" & m & "/04.ninja")
+	set t3 to exists file ("~/Library/Logs/Homebrew/" & m & "/02." & mes of scr)
+	set t4 to exists file ("~/Library/Logs/Homebrew/" & m & "/02.make")
+	set t5 to exists file ("~/Library/Logs/Homebrew/" & m & "/02.ninja")
 end tell
-if f is false and d is false and n is false and t1 is false and t2 is false then return
+if t1 is false and t2 is false and t3 is false and t4 is false and t5 is false then return
 
 if t1 is true then
 	set e to "$HOME/Library/Logs/Homebrew/" & m & "/04." & mes of scr
@@ -95,18 +92,20 @@ else if t2 is true then
 	set mes of scr to "ninja"
 	set e to "$HOME/Library/Logs/Homebrew/" & m & "/04." & mes of scr
 	set po to POSIX path of (hom of scr & "Library:Logs:Homebrew:" & m & ":04." & mes of scr)
-else if f is true then
+else if t3 is true then
 	set e to "$HOME/Library/Logs/Homebrew/" & m & "/02." & mes of scr
 	set po to POSIX path of (hom of scr & "Library:Logs:Homebrew:" & m & ":02." & mes of scr)
-else if d is true then
+else if t4 is true then
 	set mes of scr to "make"
 	set e to "$HOME/Library/Logs/Homebrew/" & m & "/02." & mes of scr
 	set po to POSIX path of (hom of scr & "Library:Logs:Homebrew:" & m & ":02." & mes of scr)
-else if n is true then
+else if t5 is true then
 	set mes of scr to "ninja"
 	set e to "$HOME/Library/Logs/Homebrew/" & m & "/02." & mes of scr
 	set po to POSIX path of (hom of scr & "Library:Logs:Homebrew:" & m & ":02." & mes of scr)
 end if
+tell application "System Events" to exists file po
+if result is false then return
 
 set {Shell, loop} to {"", 0}
 repeat 10 times
@@ -229,8 +228,7 @@ on error_1(scr)
 			do shell script "killall -INFO cmake 2>/dev/null||
 			                 killall -INFO make 2>/dev/null||echo 1"
 		else
-			do shell script "killall -INFO ninja 2>/dev/null||
-			                 killall -INFO Python 2>/dev/null||echo 1"
+			do shell script "killall -INFO ninja 2>/dev/null||echo 1"
 		end if
 		if result is "1" then
 			if tru of scr = 1 then
