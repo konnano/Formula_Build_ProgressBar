@@ -48,7 +48,7 @@ repeat
 			try
 				read po from eof to -300
 			on error
-				read po from eof to -100
+				read po from eof to -150
 			end try
 			if result contains "nettirw neeb" or result contains "ajnin dnuoF" then
 				if f is false and d is false then display notification " configure...." with title "Success"
