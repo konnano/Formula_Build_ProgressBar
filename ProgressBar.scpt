@@ -17,12 +17,13 @@ script scr
 	property pat1 : "^\\[ *([0-9]+)%].*"
 	property pat2 : "^\\[([0-9]+/[0-9]+)].*"
 end script
-set {k, t1, t2, t3, t4, t5} to {true, false, false, false, false, false}
+set {k, e, t1, t2, t3, t4, t5} to {true, false, false, false, false, false, false}
 repeat
 	display dialog "Formula" default answer ""
 	set m to text returned of result
 	tell application "System Events"
-		if not (exists file ("~/Library/Logs/Homebrew/" & m & "/03.cmake")) then
+		if not (exists file ("~/Library/Logs/Homebrew/" & m & "/03.cmake")) and ¬
+			(exists file ("~/Library/Logs/Homebrew/" & m & "/01.cmake")) then
 			set {e, mes of scr} to {true, "cmake"}
 			set f to exists file ("~/Library/Logs/Homebrew/" & m & "/02." & mes of scr)
 			set d to exists file ("~/Library/Logs/Homebrew/" & m & "/02.make")
