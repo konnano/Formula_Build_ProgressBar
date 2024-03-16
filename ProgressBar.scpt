@@ -223,7 +223,7 @@ on error_1(scr)
 	set cou of scr to (cou of scr) + 1
 	if not cou of scr = 31 then delay 0.1
 	if (cou of scr) mod 5 = 0 then
-		if ten of scr then
+		if ten of scr is true then
 			try
 				(hom of scr & "Library:Logs:Homebrew:" & fom of scr & ":05." & mes of scr) as alias
 				set tru of scr to false
