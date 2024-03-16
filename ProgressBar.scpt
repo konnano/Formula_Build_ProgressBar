@@ -145,7 +145,7 @@ repeat
 	else if tru of scr is false then
 		set {y, pat} to {100, false}
 	end if
-	if (get eof po) > g then
+	if (get eof po) > g and 100 > y then
 		set con of scr to g
 		set scr to reader_1(scr)
 	end if
@@ -153,7 +153,7 @@ repeat
 		try
 			set a to a as number
 			repeat 1 times
-				if a < y then
+				if y > a then
 					set b to 1
 					exit repeat
 				end if
