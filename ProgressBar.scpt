@@ -41,7 +41,7 @@ repeat
 	end tell
 	if e is true then
 		if f is false and d is false then display notification " configure...." with title "Wait"
-		if ten of scr then
+		if ten of scr is true then
 			set po to POSIX path of (hom of scr & "Library:Logs:Homebrew:" & m & ":03." & mes of scr)
 		else
 			set po to POSIX path of (hom of scr & "Library:Logs:Homebrew:" & m & ":01." & mes of scr)
