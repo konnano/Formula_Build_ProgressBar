@@ -24,12 +24,12 @@ repeat
 	tell application "System Events"
 		if not (exists file ("~/Library/Logs/Homebrew/" & m & "/03.cmake")) and ¬
 			(exists file ("~/Library/Logs/Homebrew/" & m & "/01.cmake")) then
-			set {e, mes of scr} to {true, "cmake"}
+			set {e, ten of scr, mes of scr} to {true, false, "cmake"}
 			set f to exists file ("~/Library/Logs/Homebrew/" & m & "/02." & mes of scr)
 			set d to exists file ("~/Library/Logs/Homebrew/" & m & "/02.make")
 		else if not (exists file ("~/Library/Logs/Homebrew/" & m & "/03.meson")) and ¬
 			(exists file ("~/Library/Logs/Homebrew/" & m & "/01.meson")) then
-			set {e, mes of scr} to {true, "meson"}
+			set {e, ten of scr, mes of scr} to {true, false, "meson"}
 			set f to exists file ("~/Library/Logs/Homebrew/" & m & "/2." & mes of scr)
 			set d to exists file ("~/Library/Logs/Homebrew/" & m & "/2.ninja")
 		else if not (exists file ("~/Library/Logs/Homebrew/" & m & "/01.meson")) and ¬
