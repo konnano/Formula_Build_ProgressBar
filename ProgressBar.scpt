@@ -51,7 +51,7 @@ repeat
 			try
 				read po from eof to -300
 			on error
-				read po from eof to -150
+				read po from eof to -100
 			end try
 			if result contains "nettirw neeb" or result contains "ajnin dnuoF" then
 				if f is false and d is false then display notification " configure...." with title "Success"
@@ -222,16 +222,18 @@ end reader_1
 on error_1(scr)
 	set cou of scr to (cou of scr) + 1
 	if not cou of scr = 31 then delay 0.1
-	if (cou of scr) mod 10 = 0 then
+	if (cou of scr) mod 5 = 0 then
 		if ten of scr then
 			try
 				(hom of scr & "Library:Logs:Homebrew:" & fom of scr & ":05." & mes of scr) as alias
 				set tru of scr to false
+				return scr
 			end try
 		else
 			try
 				(hom of scr & "Library:Logs:Homebrew:" & fom of scr & ":03." & mes of scr) as alias
 				set tru of scr to false
+				return scr
 			end try
 		end if
 	else if cou of scr = 31 then
@@ -249,6 +251,7 @@ on error_1(scr)
 			else
 				set tru of scr to false
 			end if
+			return scr
 		end if
 	end if
 	read pth of scr from eof to -200
