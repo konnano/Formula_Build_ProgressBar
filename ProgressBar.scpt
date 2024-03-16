@@ -11,34 +11,37 @@ script scr
 	property cou : 0
 	property reg : 0
 	property tru : 0
+	property ten : false
 	property num : {}
 	property hom : (path to home folder) as text
 	property pat1 : "^\\[ *([0-9]+)%].*"
 	property pat2 : "^\\[([0-9]+/[0-9]+)].*"
 end script
-set {k, ten, t1, t2, t3, t4, t5} to {true, false, false, false, false, false, false}
+set {k, t1, t2, t3, t4, t5} to {true, false, false, false, false, false}
 repeat
 	display dialog "Formula" default answer ""
 	set m to text returned of result
 	tell application "System Events"
-		set mes of scr to "cmake"
-		set e to exists file ("~/Library/Logs/Homebrew/" & m & "/01." & mes of scr)
-		set f to exists file ("~/Library/Logs/Homebrew/" & m & "/02." & mes of scr)
-		set d to exists file ("~/Library/Logs/Homebrew/" & m & "/02.make")
-		if exists file ("~/Library/Logs/Homebrew/" & m & "/01.meson") then
-			set {e, mes of scr} to {true, "meson"}
+		if not (exists file ("~/Library/Logs/Homebrew/" & m & "/03.cmake")) then
+			set {e, mes of scr} to {true, "cmake"}
 			set f to exists file ("~/Library/Logs/Homebrew/" & m & "/02." & mes of scr)
-			set d to exists file ("~/Library/Logs/Homebrew/" & m & "/02.ninja")
+			set d to exists file ("~/Library/Logs/Homebrew/" & m & "/02.make")
+		end if
+		if not (exists file ("~/Library/Logs/Homebrew/" & m & "/03.meson")) and ¬
+			(exists file ("~/Library/Logs/Homebrew/" & m & "/01.meson")) then
+			set {e, mes of scr} to {true, "meson"}
+			set f to exists file ("~/Library/Logs/Homebrew/" & m & "/2." & mes of scr)
+			set d to exists file ("~/Library/Logs/Homebrew/" & m & "/2.ninja")
 		else if not (exists file ("~/Library/Logs/Homebrew/" & m & "/01.meson")) and ¬
 			(exists file ("~/Library/Logs/Homebrew/" & m & "/03.meson")) then
-			set {e, ten, mes of scr} to {true, true, "meson"}
+			set {e, ten of scr, mes of scr} to {true, true, "meson"}
 			set f to exists file ("~/Library/Logs/Homebrew/" & m & "/04." & mes of scr)
 			set d to exists file ("~/Library/Logs/Homebrew/" & m & "/04.ninja")
 		end if
 	end tell
 	if e is true then
 		if f is false and d is false then display notification " configure...." with title "Wait"
-		if ten then
+		if ten of scr then
 			set po to POSIX path of (hom of scr & "Library:Logs:Homebrew:" & m & ":03." & mes of scr)
 		else
 			set po to POSIX path of (hom of scr & "Library:Logs:Homebrew:" & m & ":01." & mes of scr)
@@ -104,8 +107,6 @@ else if t5 is true then
 	set e to "$HOME/Library/Logs/Homebrew/" & m & "/02." & mes of scr
 	set po to POSIX path of (hom of scr & "Library:Logs:Homebrew:" & m & ":02." & mes of scr)
 end if
-tell application "System Events" to exists file po
-if result is false then return
 
 set {Shell, loop} to {"", 0}
 repeat 10 times
@@ -135,11 +136,15 @@ if y = 100 and b = 0 then return
 
 set tmp to text item delimiters of AppleScript
 set text item delimiters of AppleScript to "/"
-set {pth of scr, fom of scr} to {po, m}
+set {pth of scr, fom of scr, pat} to {po, m, true}
 repeat
 	set {g, num of scr, tru of scr} to {get eof po, {}, 1}
 	set scr to error_1(scr)
-	if tru of scr is true then return
+	if tru of scr is true then
+		return
+	else if tru of scr is false then
+		set {y, pat} to {100, false}
+	end if
 	if (get eof po) > g then
 		set con of scr to g
 		set scr to reader_1(scr)
@@ -164,7 +169,7 @@ repeat
 			end repeat
 		end try
 	end repeat
-	if y ≥ 100 then
+	if y = 100 and pat is true then
 		repeat
 			set {g, k, num of scr, tru of scr} to {get eof po, false, {}, 2}
 			set scr to error_1(scr)
@@ -218,10 +223,17 @@ on error_1(scr)
 	set cou of scr to (cou of scr) + 1
 	if not cou of scr = 31 then delay 0.1
 	if (cou of scr) mod 10 = 0 then
-		try
-			(hom of scr & "Library:Logs:Homebrew:" & fom of scr & ":03." & mes of scr) as alias
-			set tru of scr to false
-		end try
+		if ten of scr then
+			try
+				(hom of scr & "Library:Logs:Homebrew:" & fom of scr & ":05." & mes of scr) as alias
+				set tru of scr to false
+			end try
+		else
+			try
+				(hom of scr & "Library:Logs:Homebrew:" & fom of scr & ":03." & mes of scr) as alias
+				set tru of scr to false
+			end try
+		end if
 	else if cou of scr = 31 then
 		set cou of scr to 0
 		if mes of scr is "cmake" or mes of scr is "make" then
