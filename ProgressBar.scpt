@@ -27,8 +27,7 @@ repeat
 			set {e, mes of scr} to {true, "cmake"}
 			set f to exists file ("~/Library/Logs/Homebrew/" & m & "/02." & mes of scr)
 			set d to exists file ("~/Library/Logs/Homebrew/" & m & "/02.make")
-		end if
-		if not (exists file ("~/Library/Logs/Homebrew/" & m & "/03.meson")) and ¬
+		else if not (exists file ("~/Library/Logs/Homebrew/" & m & "/03.meson")) and ¬
 			(exists file ("~/Library/Logs/Homebrew/" & m & "/01.meson")) then
 			set {e, mes of scr} to {true, "meson"}
 			set f to exists file ("~/Library/Logs/Homebrew/" & m & "/2." & mes of scr)
