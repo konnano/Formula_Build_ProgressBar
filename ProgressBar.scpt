@@ -238,9 +238,10 @@ on error_1(scr)
 		end if
 	else if cou of scr = 31 then
 		set cou of scr to 0
-		if mes of scr is "cmake" or mes of scr is "make" then
-			do shell script "killall -INFO cmake 2>/dev/null||
-			                 killall -INFO make 2>/dev/null||echo 1"
+		if mes of scr is "cmake" then
+			do shell script "killall -INFO cmake 2>/dev/null||echo 1"
+		else if mes of scr is "make" then
+			do shell script "killall -INFO make 2>/dev/null||echo 1"
 		else
 			do shell script "killall -INFO ninja 2>/dev/null||echo 1"
 		end if
