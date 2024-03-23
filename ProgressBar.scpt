@@ -227,7 +227,6 @@ on error_1(scr)
 		if ten of scr is true then
 			try
 				(hom of scr & "Library:Logs:Homebrew:" & fom of scr & ":04." & mes of scr) as alias
-				log "QQQ"
 				set tru of scr to false
 				return scr
 			end try
