@@ -33,16 +33,16 @@ repeat
 			set f to exists file ("~/Library/Logs/Homebrew/" & m & "/2." & mes of scr)
 			set d to exists file ("~/Library/Logs/Homebrew/" & m & "/2.ninja")
 		else if not (exists file ("~/Library/Logs/Homebrew/" & m & "/01.meson")) and ¬
-			(exists file ("~/Library/Logs/Homebrew/" & m & "/03.meson")) then
+			(exists file ("~/Library/Logs/Homebrew/" & m & "/02.meson")) then
 			set {e, ten of scr, mes of scr} to {true, true, "meson"}
-			set f to exists file ("~/Library/Logs/Homebrew/" & m & "/04." & mes of scr)
-			set d to exists file ("~/Library/Logs/Homebrew/" & m & "/04.ninja")
+			set f to exists file ("~/Library/Logs/Homebrew/" & m & "/03." & mes of scr)
+			set d to exists file ("~/Library/Logs/Homebrew/" & m & "/03.ninja")
 		end if
 	end tell
 	if e is true then
 		if f is false and d is false then display notification " configure...." with title "Wait"
 		if ten of scr is true then
-			set po to POSIX path of (hom of scr & "Library:Logs:Homebrew:" & m & ":03." & mes of scr)
+			set po to POSIX path of (hom of scr & "Library:Logs:Homebrew:" & m & ":02." & mes of scr)
 		else
 			set po to POSIX path of (hom of scr & "Library:Logs:Homebrew:" & m & ":01." & mes of scr)
 		end if
@@ -80,8 +80,8 @@ end repeat
 
 delay 2
 tell application "System Events"
-	set t1 to exists file ("~/Library/Logs/Homebrew/" & m & "/04." & mes of scr)
-	set t2 to exists file ("~/Library/Logs/Homebrew/" & m & "/04.ninja")
+	set t1 to exists file ("~/Library/Logs/Homebrew/" & m & "/03." & mes of scr)
+	set t2 to exists file ("~/Library/Logs/Homebrew/" & m & "/03.ninja")
 	set t3 to exists file ("~/Library/Logs/Homebrew/" & m & "/02." & mes of scr)
 	set t4 to exists file ("~/Library/Logs/Homebrew/" & m & "/02.make")
 	set t5 to exists file ("~/Library/Logs/Homebrew/" & m & "/02.ninja")
@@ -89,12 +89,12 @@ end tell
 if t1 is false and t2 is false and t3 is false and t4 is false and t5 is false then return
 
 if t1 is true then
-	set e to "$HOME/Library/Logs/Homebrew/" & m & "/04." & mes of scr
-	set po to POSIX path of (hom of scr & "Library:Logs:Homebrew:" & m & ":04." & mes of scr)
+	set e to "$HOME/Library/Logs/Homebrew/" & m & "/03." & mes of scr
+	set po to POSIX path of (hom of scr & "Library:Logs:Homebrew:" & m & ":03." & mes of scr)
 else if t2 is true then
 	set mes of scr to "ninja"
-	set e to "$HOME/Library/Logs/Homebrew/" & m & "/04." & mes of scr
-	set po to POSIX path of (hom of scr & "Library:Logs:Homebrew:" & m & ":04." & mes of scr)
+	set e to "$HOME/Library/Logs/Homebrew/" & m & "/03." & mes of scr
+	set po to POSIX path of (hom of scr & "Library:Logs:Homebrew:" & m & ":03." & mes of scr)
 else if t3 is true then
 	set e to "$HOME/Library/Logs/Homebrew/" & m & "/02." & mes of scr
 	set po to POSIX path of (hom of scr & "Library:Logs:Homebrew:" & m & ":02." & mes of scr)
@@ -225,7 +225,7 @@ on error_1(scr)
 	if (cou of scr) mod 5 = 0 then
 		if ten of scr is true then
 			try
-				(hom of scr & "Library:Logs:Homebrew:" & fom of scr & ":05." & mes of scr) as alias
+				(hom of scr & "Library:Logs:Homebrew:" & fom of scr & ":04." & mes of scr) as alias
 				set tru of scr to false
 				return scr
 			end try
