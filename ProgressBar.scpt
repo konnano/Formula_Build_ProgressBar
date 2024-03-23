@@ -33,6 +33,7 @@ repeat
 			set f to exists file ("~/Library/Logs/Homebrew/" & m & "/2." & mes of scr)
 			set d to exists file ("~/Library/Logs/Homebrew/" & m & "/2.ninja")
 		else if not (exists file ("~/Library/Logs/Homebrew/" & m & "/01.meson")) and ¬
+			not (exists file ("~/Library/Logs/Homebrew/" & m & "/04.meson")) and ¬
 			(exists file ("~/Library/Logs/Homebrew/" & m & "/02.meson")) then
 			set {e, ten of scr, mes of scr} to {true, true, "meson"}
 			set f to exists file ("~/Library/Logs/Homebrew/" & m & "/03." & mes of scr)
@@ -226,6 +227,7 @@ on error_1(scr)
 		if ten of scr is true then
 			try
 				(hom of scr & "Library:Logs:Homebrew:" & fom of scr & ":04." & mes of scr) as alias
+				log "QQQ"
 				set tru of scr to false
 				return scr
 			end try
